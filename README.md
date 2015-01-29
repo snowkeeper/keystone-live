@@ -235,7 +235,8 @@ ___
 > *@param* **list** _{String}_  - Keystone List Key  
 > _@return_ **this** 
 
-Leave blank to attach live events to all Lists. Should be called after `live.live()`  
+Leave blank to attach live events to all Lists.   
+Should be called after `Live.live()`    
 Learn about attached events    
 [List Broadcast Events](#list-broadcast-events) 
 &nbsp; &nbsp; [Websocket Broadcast Events](#websocket-broadcast-events)
@@ -339,7 +340,7 @@ Live.on('doc:Post', docPostEventFunction);
 Live.on('list:' + socket.id, listEventFunction);
 ```
 
-Socket emitters  
+#####Socket emitters  
 **user emitters**
 sent to individual sockets
 ```javascript
