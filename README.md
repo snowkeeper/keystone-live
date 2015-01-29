@@ -639,7 +639,7 @@ socket.emit('updateField',{
     value: 'Help!',
     iden: _uniqueKey_
 });
-Hello
+// Hello
 socket.on('updateField', function(obj) {
 	live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, id:getId, data:doc, field:getField, value:getValue, success:true, iden: list.iden});
 });
