@@ -1,0 +1,82 @@
+doctype html
+html
+	head
+		
+		meta(charset="utf-8")
+		meta(name="viewport", content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width")
+		
+		title= title || 'inquisive Client Connect'
+		link(rel="shortcut icon", href="/favicon.ico", type="image/x-icon")
+		link(href="/styles/site.min.css", rel="stylesheet")
+		style.
+			body{background:#fff;color:#444!important;}
+	body.default()
+		
+		.container
+			.form#testbedform
+				.adderror
+				br
+				p
+				a(name="top")
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp live
+					select#list.form-control
+						option(value='') All
+						option Post
+						option Enquiry
+						option User
+						option Post Category
+						option Gallery
+				
+				
+						
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp api
+					select#path.form-control
+						option posts
+						option enquiries
+						option users
+						option post-categories
+						option galleries
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp command
+					select#emit.form-control
+						option get
+						option list
+						option create
+						option update
+						option updateField
+						option remove
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp id
+					input.form-control.coinstamp( type="text"  id="id" name="id" )
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp title
+					input.form-control.coinstamp( type="text"  id="title" name="title" )
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp brief
+					textarea.form-control.coinstamp(  id="content" )
+				.form-group.input-group
+					span.input-group-addon.input-group-sm.coinstamp query
+					textarea.form-control.coinstamp(  id="q" )
+				.form-group.input-group
+					button.btn.btn-info#runsock Send Sock Request 
+					| &nbsp; 
+					button.btn.btn-info#runapi Send API Request
+			div#myAffixHelper.col-xs-3(style="display:none;")
+			div#myAffix.col-xs-3
+				pre: a(href="#top") Top
+				pre#commands
+			div.col-xs-9
+				pre#console
+		
+			
+			
+	script(src='/js/lib/jquery/jquery-1.11.1.min.js')
+	script(src='/js/lib/bootstrap/bootstrap-3.2.0.min.js')
+	script(src="/js/socket.io.js")
+	script(src='/test.js')
+	script.
+		var _csrf = '#{locals.token}';
+		
+		

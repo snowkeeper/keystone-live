@@ -1,0 +1,38 @@
+{
+  "name": "keystone-live",
+  "version": "0.0.1",
+  "description": "KesytoneJS List live events",
+  "main": "live.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowkeeper/keystone-live"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "express-socket.io-session": "^1.2.1",
+    "keystone": "snowkeeper/keystone#session-express",
+    "lodash": "^3.0.0",
+    "mock-req": "^0.1.0",
+    "mock-res": "^0.2.1",
+    "socket.io": "~1.3.2"
+  },
+  "keywords": [
+    "keystone",
+    "live",
+    "events",
+    "sockets",
+    "rest",
+    "restful",
+    "routes",
+    "rest routes",
+    "spa",
+    "socket.io"
+  ],
+  "author": "snowkeeper",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/snowkeeper/keystone-live/issues"
+  },
+  "homepage": "https://github.com/snowkeeper/keystone-live"
+}
