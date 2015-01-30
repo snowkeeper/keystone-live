@@ -6,18 +6,21 @@ var keystone = require('keystone'),
  * ==========
  */
 
-var User = new keystone.List('User');
+var Test = new keystone.List('Test');
 
-User.add({
-	name: { type: Types.Name, required: true, index: true, initial: true, noedit: false },
+Test.add({
+	name: { type: Types.Name, required: true, index: true, initial: true },
 	email: { type: Types.Email, initial: true, required: true, index: true },
 	password: { type: Types.Password, initial: true, required: true }
 }, 'Permissions', {
 	isAdmin: { type: Boolean, label: 'Can access Keystone', index: true }
-});
+},
+ {heading:"User Generated Content Requirements", dependsOn:{type:'ugc'}},
+ {type: {type:Types.Select, options:['ugc', 'uga']}}
+);
 
 // Provide access to Keystone
-User.schema.virtual('canAccessKeystone').get(function() {
+Test.schema.virtual('canAccessKeystone').get(function() {
 	return this.isAdmin;
 });
 
@@ -26,12 +29,12 @@ User.schema.virtual('canAccessKeystone').get(function() {
  * Relationships
  */
 
-User.relationship({ ref: 'Post', path: 'author' });
+Test.relationship({ ref: 'Post', path: 'author' });
 
 
 /**
  * Registration
  */
 
-User.defaultColumns = 'name, email, isAdmin';
-User.register();
+Test.defaultColumns = 'name, email, isAdmin';
+Test.register();

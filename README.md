@@ -25,7 +25,7 @@ keystone.start({
 * [Methods](#method-reference)
     * [.apiRoutes](#apiroutes---list---options--)  
     * [.init](#init--keystone-)  
-    * [.list](#list--list-)
+    * [.list](#list---list--)
     * [.live](#live---options--callback-)
     * [.router](#router-) 
 * [Events](#events)
