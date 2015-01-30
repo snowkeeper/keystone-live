@@ -256,10 +256,11 @@ ___
 
 #### .live ( [ options ], callback )
 > *@param* **options** _{Object}_  - Options for creating events   
-> _@return_ **callback** _{Function}_
+> _@return_ **[callback || this]** _{Function}_
 
 Create the socket server and attach to events   
 Returns `this` if no **`callback`** provided.  
+
 **`options`** is an object that may contain:  
 > __auth__ -   {_Function_} - require user   
 > __routes__   - {_Object_} override the default routes
