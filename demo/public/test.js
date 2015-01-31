@@ -169,26 +169,26 @@ $(function() {
 				title:$('#title').val(),
 				'content.brief':$('#content').val()
 			}
-			socketLists.emit('create',{list:'Post',doc:data});
+			socketLists.emit('create',{list:$('#list').val(),doc:data});
 		}
 		if(emit === 'update') {
 			var data = {};
 			if($title)data.title = $title;
 			if($content)data['content.brief'] = $content;
 			var id = $id || testDoc._id;
-			socketLists.emit('update',{list:'Post',id:id,doc:data});
+			socketLists.emit('update',{list:$('#list').val(),id:id,doc:data});
 		}
 		if(emit === 'get') {
 			var data = {
 				id: $('#id').val() || testDoc._id,
-				list: 'Post'
+				list: $('#list').val()
 			}
 			socketLists.emit('get',data);
 		}
 		if(emit === 'updateField') {
 			var data = {
 				id: $('#id').val() || testDoc._id,
-				list: 'Post',
+				list: $('#list').val(),
 				field: 'content.brief',
 				value: $('#content').val()
 			}
@@ -197,7 +197,7 @@ $(function() {
 		if(emit === 'remove') {
 			var data = {
 				id: $('#id').val() || testDoc._id,
-				list: 'Post'
+				list: $('#list').val()
 			}
 			socketLists.emit('remove',data);
 		}

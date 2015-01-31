@@ -12,7 +12,6 @@ var sock = require('socket.io')();
 var restSock = require('./lib/restful-sock');
 var restApi = require('./lib/restful-api');
 var sharedsession = require("express-socket.io-session");
-var session = require("express-session");
 /**
  * Live Constructor
  * =================
