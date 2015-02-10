@@ -20,7 +20,7 @@ keystone.start({
 
 ```
 
-###API
+### API
 * [Demo](#demo)
 * [Methods](#method-reference)
     * [.apiRoutes](#apiroutes---list---options--)  
@@ -47,11 +47,11 @@ keystone.start({
 * [Additional io namespaces](#additional-io-namespaces)
 * [Client](#client)
 
-##Demo
+## Demo
 A complete demo with live testbed is included in the git repo (not npm).  
 View the [README](https://github.com/snowkeeper/keystone-live/blob/master/demo) for installation.
 
-##Method Reference
+## Method Reference
 The following is a list of methods available.
 
 #### .apiRoutes ( [ list ], [ options ] )
@@ -342,7 +342,7 @@ Live.on('doc:Post', docPostEventFunction);
 Live.on('list:' + socket.id, listEventFunction);
 ```
 
-#####Socket emitters  
+##### Socket emitters  
 **user emitters**
 sent to individual sockets
 ```javascript
@@ -410,13 +410,13 @@ Will provide mock routing for node-webkit operation
 ```
 ___
 
-##Events
-###Overview
+## Events
+### Overview
 Live uses the event system to broadcast changes made to registered lists.   
 Each registered list will broadcast change events.  
 Socket based events have a finer grain of control and you can listen for specific change events.
 
-###List Broadcast Events
+### List Broadcast Events
 A registered list has events attached to the **pre** and **post** routines.  These are global events that fire anytime a change request happens.  You can also listen to the global `doc:pre` and `doc:post` on the user broadcast (explained below).  For greater interactivity and control use the websocket broadcast events. 
   
 |pre|post|*post|
@@ -552,15 +552,15 @@ function docPostEventFunction(event) {
     socket.emit('doc:post:' + event.type, event);
 }
 ```
-###Websocket Broadcast Events
+### Websocket Broadcast Events
 Live uses **socket.io v~1.3.2** to handle live event transportation.  A set of CRUD routes are available and there are several rooms you can subscribe to that emit results.  
 
 **io** is exposed via `Live.io`.  Our list namespace is `Live.io.of('/lists')`.  
 You will connect to the `/lists` namespace in the client to listen to emit events.
 
-####CRUD Listeners
+#### CRUD Listeners
 There is a generic set of CRUD listeners available to control the database.  You do not receive callback results with Websocket CRUD listeners.  You will need to pick the best strategy to use to listen for result events from the rooms available.  Each listener emits its result to `Live.on`.  `Live.on` will catch each submission and decide who should be notified.  View the `changeEvent()` behaviour below.
-######create 
+###### create 
 ```javascript
 socket.emit('create',{
 	list: 'Post',
@@ -575,7 +575,7 @@ socket.on('create', function(obj) {
 });
 ```
 
-######get 
+###### get 
 ```javascript
 socket.emit('get',{
 	list: 'Post',
@@ -588,7 +588,7 @@ socket.on('get', function(obj) {
 });
 ```
 
-######list 
+###### list 
 ```javascript
 socket.emit('list',{
 	list: 'Post',
@@ -601,7 +601,7 @@ socket.on('list', function(obj) {
 
 ```
 
-######remove 
+###### remove 
 ```javascript
 socket.emit('remove',{
 	list: 'Post',
@@ -615,7 +615,7 @@ socket.on('remove', function(obj) {
 
 ```
 
-######update 
+###### update 
 ```javascript
 socket.emit('update',{
 	list: 'Post',
@@ -632,7 +632,7 @@ socket.on('update', function(obj) {
 
 ```
 
-######updateField 
+###### updateField 
 ```javascript
 socket.emit('updateField',{
 	list: 'Post',
@@ -648,7 +648,7 @@ socket.on('updateField', function(obj) {
 
 ```
 
-#####Broadcast Results
+##### Broadcast Results
 Instead of returning a http response, each listener emits a local event that the app is waiting for.  This event is processed and the correct rooms are chosen to broadcast the result.    
 
 There are two emitter namespaces  
@@ -671,25 +671,25 @@ The following are valid `event.type` values:
 
 Each broadcast is sent to the global **doc** as well as a computed **doc:event.type** channel.  
 **changeEvent** will send the broadcast to the following rooms that are available for listening: 
-######path
+###### path
 ```javascript
 emitter.to(event.path).emit('doc', event);
 emitter.to(event.path).emit('doc:' + event.type, event);
 ```
-######id
+###### id
 the `doc._id` value if available
 ```javascript
 emitter.to(event.id).emit('doc', event);
 emitter.to(event.id).emit('doc:' + event.type, event);
 ```
 
-######slug
+###### slug
 document slug if available
 ```javascript
 emitter.to(event.data.slug).emit('doc', event);
 emitter.to(event.data.slug).emit('doc:' + event.type, event);
 ```
-######id:field
+###### id:field
 field broadcasts to the **list.path** room and a **doc._id:fieldName** room
 ```javascript
 // room event.id:event.field     emit doc
@@ -701,7 +701,7 @@ emitter.to(event.path).emit('field:' + event.id + ':' + event.field, event);
 emitter.to(event.path + ':field').emit('field:' + event.id + ':' + event.field, event);
 
 ```
-######iden
+###### iden
 Dynamic room.  Send a unique `iden` with each request and the app emits back to a room named after `iden`
 ```javascript
 emitter.to(event.iden).emit('doc' , event);
@@ -735,7 +735,7 @@ socket.emit('create',{
 
 ```
 
-##Additional io namespaces
+## Additional io namespaces
 The socket instance is exposed at `Live.io`.   
 The `/lists` and `/` namespaces are reserved.  You can create any others of your own.
 
@@ -785,7 +785,7 @@ myNamespace.on("connection", function(socket) {
 	
 ```
 
-##Client
+## Client
 Your client should match up with our server version.  Make sure you are using 1.x.x and not 0.x.x versions.
 
 ```javascript
@@ -814,10 +814,5 @@ var socketLists = io('/lists');
 ```
 
 
-<br />
-<br />
-<br />
-<br />
-<br />
 
 
