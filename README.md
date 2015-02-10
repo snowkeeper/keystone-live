@@ -151,7 +151,7 @@ Each registered list gets a set of routes created and attached to the schema.  Y
 
 
 Relevant Code:  
-```
+```javascript
 // add the route without pre and trailing slash
 var route = options.route || 'api';
 
@@ -426,7 +426,7 @@ A registered list has events attached to the **pre** and **post** routines.  The
 | save:pre    | save:post  | **save**  |
 | remove:pre   | remove:post   | &nbsp;  |  
 *Note that post save has an extra event `save:post` and `save`. 
-```
+```javascript
 list.schema.pre('validate', function (next) {
  
 	var doc = this;
