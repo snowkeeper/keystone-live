@@ -1,6 +1,6 @@
 {
   "name": "keystone-live",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "KesytoneJS List live events",
   "main": "live.js",
   "scripts": {},
