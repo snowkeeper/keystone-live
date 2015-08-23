@@ -54,7 +54,7 @@ $(function() {
 		}
 	}
 	
-	var socketLists = io('//snowx:4000/lists');
+	var socketLists = io('//snowx:11000/lists');
 	
 	socketLists.on('connect',function(data) {
 		console.log('connected');
@@ -108,18 +108,16 @@ $(function() {
 		updateConsole('list',data)
 	});
 	
-	socketLists.emit('list',{list:'Post'});
-	socketLists.emit('join',{room:'posts'});
-	
-	$('#runapi').click(function(){
-		
+	socketLists.emit('list',{list:'Sources'});
+	socketLists.emit('join',{room:'sources'});
+	socketLists.emit('join',{room:'streams'});
+	$('#runapi').click(function(e){
+		e.preventDefault();
 		var emit = $('#emit').val();
 		
 		var $path = $('#path').val();
 		var url = '/api/' + $path;
 		var $id = $('#id').val();
-		var $title = $('#title').val();
-		var $content = $('#content').val();
 		
 		if(emit === 'list') {
 			url += '/list/';
@@ -139,9 +137,7 @@ $(function() {
 		if(emit === 'remove') {
 			url += '/' + $id + '/remove/';
 		}
-		var finish = '';
-		if($title)finish += '&title=' + $title;
-		if($content)finish += '&content.brief=' + $content;
+		var finish = $('#testbedform').serialize();
 		url = url + '?' + $('#q').val() + finish;
 		$.ajax({
 			url: url
@@ -152,17 +148,15 @@ $(function() {
 		
 	});	
 	
-	$('#runsock').click(function(){
-		
+	$('#runsock').click(function(e){
+		e.preventDefault();
 		var emit = $('#emit').val();
-		var $id = $('#id').val();
-		var $title = $('#title').val();
-		var $content = $('#content').val();
-		
+		var data = $('#testbedform').serializeFormJSON();
 		updateConsole('emit: ' + emit)
-		
+		console.log(data)
 		if(emit === 'list') {
-			socketLists.emit('list',{list:$('#list').val()});
+			
+			socketLists.emit('list',data);
 		}
 		if(emit === 'create') {
 			var data = {
@@ -179,10 +173,7 @@ $(function() {
 			socketLists.emit('update',{list:$('#list').val(),id:id,doc:data});
 		}
 		if(emit === 'get') {
-			var data = {
-				id: $('#id').val() || testDoc._id,
-				list: $('#list').val()
-			}
+			
 			socketLists.emit('get',data);
 		}
 		if(emit === 'updateField') {
@@ -203,4 +194,31 @@ $(function() {
 		}
 		
 	});	
+	
+	$('.changeme').change(function(e) {
+		var next = $(':input:eq(' + ($(':input').index(this) + 1) + ')')
+		//console.log('changeme', e.target.value, next.attr('name'), next);
+		next.attr('name', e.target.value);
+	});
+	
+	$('.addinputs').click(function(click) {
+			var div = '<div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]" class="changeme form-control coinstamp"></div></div><div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">value</span><input type="text"  name="val[]" class="form-control coinstamp"></div></div>';
+			$('.adddiv').append(div)
+	})
+	$.fn.serializeFormJSON = function () {
+
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function () {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
 });

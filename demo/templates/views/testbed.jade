@@ -13,52 +13,60 @@ html
 	body.default()
 		
 		.container
-			.form#testbedform
+			form#testbedform.form
 				.adderror
 				br
 				p
 				a(name="top")
 				.form-group.input-group
 					span.input-group-addon.input-group-sm.coinstamp live
-					select#list.form-control
+					select#list.form-control(name='list')
 						option(value='') All
+						option Source
+						option Stream
 						option Post
 						option Enquiry
 						option User
 						option Post Category
 						option Gallery
-				
+						
 				
 						
 				.form-group.input-group
 					span.input-group-addon.input-group-sm.coinstamp api
-					select#path.form-control
+					select#path.form-control(name='path')
+						option sources
+						option streams
 						option posts
 						option enquiries
 						option users
 						option post-categories
 						option galleries
+						
 				.form-group.input-group
 					span.input-group-addon.input-group-sm.coinstamp command
-					select#emit.form-control
-						option get
+					select#emit.form-control(name='emit')
 						option list
+						option get
+						
 						option create
 						option update
 						option updateField
 						option remove
+						option start
+						option stop
 				.form-group.input-group
 					span.input-group-addon.input-group-sm.coinstamp id
 					input.form-control.coinstamp( type="text"  id="id" name="id" )
+				
+				<div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]" class="changeme form-control coinstamp"></div></div><div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">value</span><input type="text"  name="val[]" class="form-control coinstamp"></div></div>
+				
+				.adddiv.nopad
 				.form-group.input-group
-					span.input-group-addon.input-group-sm.coinstamp title
-					input.form-control.coinstamp( type="text"  id="title" name="title" )
-				.form-group.input-group
-					span.input-group-addon.input-group-sm.coinstamp brief
-					textarea.form-control.coinstamp(  id="content" )
-				.form-group.input-group
-					span.input-group-addon.input-group-sm.coinstamp query
-					textarea.form-control.coinstamp(  id="q" )
+					p 
+					p: a.addinputs(style="cursor:pointer") Add New key/value pair
+					p
+					
 				.form-group.input-group
 					button.btn.btn-info#runsock Send Sock Request 
 					| &nbsp; 

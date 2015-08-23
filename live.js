@@ -94,8 +94,9 @@ Live.prototype.apiRoutes = function(list, options) {
 	
 	} else {
 		// loop through keystone.lists
-		_.each(keystone.lists,function(list, key) {
-			add(list);
+		_.each(keystone.lists,function(alist, key) {
+			if(!_.isObject(alist.schema.methods.api))add(alist);
+			
 		},this);
 		
 		return this;
@@ -105,9 +106,11 @@ Live.prototype.apiRoutes = function(list, options) {
 		
 		if(!_.isObject(list.schema.methods.api)) {
 			list.schema.methods.api = {};
-		}	
+		}
 		
 		if(!_.isObject(options.routes)) options.routes = {};
+		
+		list.apiOptions = options;
 		
 		var apiRoutes = {};
 		_.each(restApi,function(fn,method) {
@@ -139,7 +142,7 @@ Live.prototype.apiRoutes = function(list, options) {
 		
 		/* attach methods to the list */
 		var api = list.schema.methods.api = apiRoutes;
-		
+
 		// middleware
 		var middle = [keystone.middleware.api];
 		if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
@@ -443,14 +446,14 @@ Live.prototype.live = function(opts, callback) {
 			 *   skip number -  skip: 0 (default)
 			 * */
 			socket.on('list',function(list) {
-				
+				//console.log(list)
 				if(!_.isObject(list) || !list.list ) {
 					/* no list given so grab all lists */
 					var p = [];
 					var keys = _.keys(keystone.lists);
 					async.each(keys,function(key,next) {
 							
-						getList(keystone.lists[key], list.options || {}, function(obj){
+						getList(keystone.lists[key], list || {}, function(obj){
 							p.push(obj);
 							next();	
 						});
@@ -462,7 +465,7 @@ Live.prototype.live = function(opts, callback) {
 					
 				} else if(_.isObject(keystone.lists[list.list])) {
 					// send the requested list
-					getList(keystone.lists[list.list], list.options || {}, function(obj){
+					getList(keystone.lists[list.list], list || {}, function(obj){
 						live.emit('list:' + socket.id,obj);	
 					});
 				} else {

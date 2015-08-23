@@ -65,6 +65,7 @@ Set `list`  =  `false` to attach routes to all lists. Call multiple times to att
 keystone.start({
 	onMount: function() {
     	var opts = {
+			exclude: '_id,__v',
 			route: 'galleries',
             paths: {
 				get: 'find',
@@ -78,7 +79,9 @@ keystone.start({
     }
 });
 ```
-**`options`** is an object that may contain:  
+**`options`** is an object that may contain: 
+> __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)
+> __include__ - {_String_}  - Fields to include in requests
 > __auth__ -   {_Function_} - require user   
 > __middleware__ - {_...Array|Function_} -  Array of middleware routes  
 > __route__ - {_String_}  - Root path without pre and trailing slash  
@@ -98,10 +101,12 @@ keystone.start({
 >> update   -   {_Function_}   
 >> updateField   -   {_Function_}   
 
+**NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  **exclude** takes precedent over **include** and only one is used per request.  You can override the global setting per request.
 
 ```javascript
 	var opts = {
 		route: 'api2',
+		exclude: '_id,__v',
 		auth: function requireUser(req, res, next) {
 			if (!req.user) {
 				return res.apiError('not authorized', 'Please login to use the service', null, 401);
@@ -261,7 +266,9 @@ ___
 Create the socket server and attach to events   
 Returns `this` if no **`callback`** provided.  
 
-**`options`** is an object that may contain:  
+**`options`** is an object that may contain: 
+> __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)
+> __include__ - {_String_}  - Fields to include in requests 
 > __auth__ -   {_Function_} - require user   
 > __routes__   - {_Object_} override the default routes
 >> create   -   {_Function_}   
@@ -273,6 +280,7 @@ Returns `this` if no **`callback`** provided.
 
 ```javascript
 	var opts = {
+		include: 'name,slug,_id,',
 		auth: function(socket, next) {
 			if (socket.handshake.session) {
 				console.log(socket.handshake.session)
