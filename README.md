@@ -80,8 +80,8 @@ keystone.start({
 });
 ```
 **`options`** is an object that may contain: 
-> __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)
-> __include__ - {_String_}  - Fields to include in requests
+> __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)    
+> __include__ - {_String_}  - Fields to include in requests   
 > __auth__ -   {_Function_} - require user   
 > __middleware__ - {_...Array|Function_} -  Array of middleware routes  
 > __route__ - {_String_}  - Root path without pre and trailing slash  
@@ -101,7 +101,7 @@ keystone.start({
 >> update   -   {_Function_}   
 >> updateField   -   {_Function_}   
 
-**NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  **exclude** takes precedent over **include** and only one is used per request.  You can override the global setting per request.
+**NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.
 
 ```javascript
 	var opts = {
