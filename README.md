@@ -280,7 +280,7 @@ Returns `this` if no **`callback`** provided.
 
 ```javascript
 	var opts = {
-		include: 'name,slug,_id,',
+		include: 'name,slug,_id,createdAt',
 		auth: function(socket, next) {
 			if (socket.handshake.session) {
 				console.log(socket.handshake.session)
