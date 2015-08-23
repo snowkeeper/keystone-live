@@ -23,7 +23,7 @@ keystone.init({
 	'view engine': 'jade',
 	
 	'emails': 'templates/emails',
-	'port': 4000,
+	'port': 11000,
 	'auto update': true,
 	'auth': false,
 	'user model': 'User',

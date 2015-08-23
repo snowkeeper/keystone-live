@@ -1,5 +1,8 @@
 $(function() {
 	
+	var socketPort = $('#socketPort').val()
+	var host = $('#host').val()
+	
 	$('#myAffix').affix({
 		offset: {
 			top: 450
@@ -54,7 +57,7 @@ $(function() {
 		}
 	}
 	
-	var socketLists = io('//snowx:11000/lists');
+	var socketLists = io('//' + host + ':' + socketPort + '/lists');
 	
 	socketLists.on('connect',function(data) {
 		console.log('connected');
@@ -151,6 +154,7 @@ $(function() {
 	$('#runsock').click(function(e){
 		e.preventDefault();
 		var emit = $('#emit').val();
+		var $id = $('#id').val();
 		var data = $('#testbedform').serializeFormJSON();
 		updateConsole('emit: ' + emit)
 		console.log(data)
@@ -159,16 +163,10 @@ $(function() {
 			socketLists.emit('list',data);
 		}
 		if(emit === 'create') {
-			var data = {
-				title:$('#title').val(),
-				'content.brief':$('#content').val()
-			}
+			
 			socketLists.emit('create',{list:$('#list').val(),doc:data});
 		}
 		if(emit === 'update') {
-			var data = {};
-			if($title)data.title = $title;
-			if($content)data['content.brief'] = $content;
 			var id = $id || testDoc._id;
 			socketLists.emit('update',{list:$('#list').val(),id:id,doc:data});
 		}
@@ -177,32 +175,26 @@ $(function() {
 			socketLists.emit('get',data);
 		}
 		if(emit === 'updateField') {
-			var data = {
-				id: $('#id').val() || testDoc._id,
-				list: $('#list').val(),
-				field: 'content.brief',
-				value: $('#content').val()
-			}
+			
 			socketLists.emit('updateField',data);
 		}
 		if(emit === 'remove') {
-			var data = {
-				id: $('#id').val() || testDoc._id,
-				list: $('#list').val()
-			}
+			
 			socketLists.emit('remove',data);
 		}
 		
 	});	
 	
-	$('.changeme').change(function(e) {
+	$(document).on('change','.changeme',function(e) {
 		var next = $(':input:eq(' + ($(':input').index(this) + 1) + ')')
 		//console.log('changeme', e.target.value, next.attr('name'), next);
 		next.attr('name', e.target.value);
 	});
 	
+	
+	
 	$('.addinputs').click(function(click) {
-			var div = '<div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]" class="changeme form-control coinstamp"></div></div><div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">value</span><input type="text"  name="val[]" class="form-control coinstamp"></div></div>';
+			var div = '<div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]"  class="changeme form-control coinstamp"></div></div><div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">value</span><input type="text"  name="val[]" class="form-control coinstamp"></div></div>';
 			$('.adddiv').append(div)
 	})
 	$.fn.serializeFormJSON = function () {
