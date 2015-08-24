@@ -160,6 +160,17 @@ Live.prototype.apiRoutes = function(list, options) {
 				middle.push(requireUser);
 			}
 		}
+		
+		// custom routes
+		var defaultRoutes = ['list','get','create','remove','update','updateField'];
+		_.each(options.routes, function(v,k) {
+			if(!_.includes(defaultRoutes,k)) {
+				api[k] = v(list);
+				app.get('/' + route +'/' + list.path + '/' + k, middle, api[k]);
+				app.get('/' + route +'/' + list.path + '/:id/' + k , middle, api[k]);
+			}
+		});
+		
 		// add routes to express
 		app.get('/' + route +'/' + list.path + '/' + listPath, middle, api.list);
 		app.all('/' + route +'/' + list.path + '/' + createPath, middle, api.create);
@@ -168,6 +179,7 @@ Live.prototype.apiRoutes = function(list, options) {
 		app.all('/' + route +'/' + list.path + '/:id/' + updateFieldPath, middle, api.updateField);
 		app.get('/' + route +'/' + list.path + '/:id/' + removePath, middle, api.remove);
 		
+		app.get('/' + route +'/' + list.path + '/*', middle, api.get);
 		return live;
 	}
 	// middleware require user
@@ -437,6 +449,28 @@ Live.prototype.live = function(opts, callback) {
 			 * callback is mandatory
 			 * 
 			 * */
+			
+			var defaultRoutes = ['list','get','create','remove','update','updateField'];
+			
+			_.each(opts.routes, function(fn,k) {
+				if(!_.includes(defaultRoutes,k)) {
+					socket.on(k, function(data) {
+						fn(keystone.lists[data.list], data, socket, function(err, returnData, callback) {
+							if(_.isFunction(callback)) {
+								callback(live);
+							}
+							if(returnData) {
+								// send data to any listeners
+								live.emit('doc:' + socket.id,{type:k, path:data.path, received:data, data:returnData, success:true, iden: data.iden});
+							} else {
+								// fail
+								live.emit('doc:' + socket.id,{type:k, path:data.path,  success:false, error:err, iden: data.iden});
+							}
+						});
+					});
+				}
+			});
+			
 			/**
 			 * list listener
 			 * expects an obj with min of { list: 'ListKey' }
