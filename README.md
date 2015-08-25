@@ -134,6 +134,22 @@ keystone.start({
 						
 					});
 				}
+			},
+			*yourOwnFunction*: function(list) {
+				return function(req, res) {
+					console.log('my custom function');
+					list.model.findById(req.params.id).exec(function(err, item) {
+					
+						if (err) return res.apiError('database error', err);
+						if (!item) return res.apiError('not found');
+						
+						var data2 = {}
+						data2[list.path] = item;
+					
+						res.apiResponse(data2);
+						
+					});
+				}
 			}
 		}
 	}
@@ -297,6 +313,28 @@ Returns `this` if no **`callback`** provided.
 			// all functions except create and update follow this argument structure
 			get: function(data, socket, callback) {
 				console.log('custom get');
+				if(!_.isFunction(callback)) callback = function(err,data){ 
+					console.log('callback not specified for get',err,data);
+				};
+				var list = data.list;
+				var id = data.id;
+				if(!list) return callback('list required');
+				if(!id) return callback('id required');
+
+				list.model.findById(id).exec(function(err, item) {
+					
+					if (err) return callback(err);
+					if (!item) return callback('not found');
+					
+					var data = {}
+					data[list.path] = item;
+					
+					callback(null, data);
+					
+				});
+			},
+			*yourCustomRoom*: function(data, socket, callback) {
+				console.log('this is my custom room listener function');
 				if(!_.isFunction(callback)) callback = function(err,data){ 
 					console.log('callback not specified for get',err,data);
 				};
