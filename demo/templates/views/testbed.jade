@@ -67,10 +67,9 @@ html
 					span.input-group-addon.input-group-sm.coinstamp id
 					input.form-control.coinstamp( type="text"  id="id" name="id" )
 				
-				<div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]"  class="changeme form-control coinstamp"></div></div><div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">value</span><input type="text"  name="val[]" class="form-control coinstamp"></div></div>
-				
-				.adddiv.nopad
-				.form-group.input-group
+				.row
+					<div class="col-xs-4"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]"  class="changeme form-control coinstamp"></div></div><div class="col-xs-7"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp"></span><input placeholder="value" type="text"  name="val[]" class="form-control coinstamp"></div></div><div class="col-xs-1"><span class="glyphicon glyphicon-trash text-danger deleteRow"></span></div>
+				.form-group.input-group#addRowHere
 					p 
 					p: a.addinputs(style="cursor:pointer") Add New key/value pair
 					p

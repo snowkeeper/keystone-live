@@ -55,8 +55,8 @@ Live.prototype.router = function(path, callback) {
 	
 	var live = this;
 	var app = this.app;
-	var MockRes = require('mock-res');
-	var MockReq = require('mock-req');
+	this.MockRes = require('mock-res');
+	this.MockReq = require('mock-req');
 	
 }
 
@@ -203,7 +203,7 @@ Live.prototype.apiRoutes = function(list, options) {
  * attach live events to a keystone List
  * 
  * */
-Live.prototype.list = function(list) {
+Live.prototype.listEvents = function(list) {
 	
 	var live = this;	
 	
@@ -287,12 +287,14 @@ Live.prototype.list = function(list) {
 		
 	}
 }
+// alias apiSockets
+Live.prototype.list = Live.prototype.listEvents;
 
 /**
  * socket events on List actions
  * 
  * */
-Live.prototype.live = function(opts, callback) {
+Live.prototype.apiSockets = function(opts, callback) {
 	
 	var live = this;
 	
@@ -377,6 +379,7 @@ Live.prototype.live = function(opts, callback) {
 	/* list events */
 	listNamespace.on("connection", function(socket) {
 			
+			// mock the express req object with user.
 			var req = {
 				user: socket.handshake.session.user
 			}
@@ -508,11 +511,13 @@ Live.prototype.live = function(opts, callback) {
 				}
 				
 				/* retrieve the results */
-				function getList(getList, options, cb) {
+				function getList(getList, list, cb) {
 					
 					var fn = _.isFunction(opts.routes.list) ? opts.routes.list : restSock.list;
+					
+					list.list = getList;
 									
-					fn(getList, options, socket, function(err, docs) {
+					fn(list, socket, function(err, docs) {
 						if(docs) {
 							// send data to listeners
 							cb({path:getList.path, data:docs, success:true});
@@ -530,18 +535,20 @@ Live.prototype.live = function(opts, callback) {
 			 * */
 			socket.on('get',function(list) {
 				
-				var getList = keystone.lists[list.list];
-				var getDoc = list.id;
-				
+				list.list = keystone.lists[list.list];
+				if(!list.list) {
+					// fail
+					live.emit('doc:' + socket.id,{type:'get', path:list.list,  success:false, error:err, iden: list.iden});
+				}
 				var fn = _.isFunction(opts.routes.get) ? opts.routes.get : restSock.get;
 				
-				fn(getList, getDoc, socket, function(err, doc) {
+				fn(list, socket, function(err, doc) {
 					if(doc) {
 						// send data to any listeners
-						live.emit('doc:' + socket.id,{type:'get', path:getList.path, id:getDoc, data:doc, success:true, iden: list.iden});
+						live.emit('doc:' + socket.id,{type:'get', path:list.list.path, id:list.id, data:doc, success:true, iden: list.iden});
 					} else {
 						// fail
-						live.emit('doc:' + socket.id,{type:'get', path:getList.path,  success:false, error:err, iden: list.iden});
+						live.emit('doc:' + socket.id,{type:'get', path:list.list.path,  success:false, error:err, iden: list.iden});
 					}
 				});
 			});
@@ -551,12 +558,11 @@ Live.prototype.live = function(opts, callback) {
 			 * */
 			socket.on('create',function(list) {
 				
-				var getList = keystone.lists[list.list];
-				var getDoc = list.doc;
+				var getList = list.list = keystone.lists[list.list];
 				
 				var fn = _.isFunction(opts.routes.create) ? opts.routes.create : restSock.create;
 				
-				fn(getList, getDoc, req,  socket, function(err, doc) {
+				fn(list, req,  socket, function(err, doc) {
 					if(doc) {
 						// send data to listeners
 						live.emit('doc:' + socket.id,{type:'created', path:getList.path, id:doc._id, data:doc, success:true, iden: list.iden});
@@ -572,16 +578,14 @@ Live.prototype.live = function(opts, callback) {
 			 * */
 			socket.on('update',function(list) {
 				
-				var getList = keystone.lists[list.list];
-				var getId = list.id;
-				var getDoc = list.doc;
+				var getList = list.list = keystone.lists[list.list];
 				
 				var fn = _.isFunction(opts.routes.update) ? opts.routes.update : restSock.update;
 				
-				fn(getList, getId, getDoc, req,  socket, function(err, doc) {
+				fn(list, req,  socket, function(err, doc) {
 					if(doc) {
 						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'updated', path:getList.path, id:getId, data:doc, success:true, iden: list.iden});
+						live.emit('doc:' + socket.id,{type:'updated', path:getList.path, id:list.id, data:doc, success:true, iden: list.iden});
 					} else {
 						// fail
 						live.emit('doc:' + socket.id,{type:'updated', path:getList.path, success:false, error:err, iden: list.iden});
@@ -594,17 +598,14 @@ Live.prototype.live = function(opts, callback) {
 			 * */
 			socket.on('updateField',function(list) {
 				
-				var getList = keystone.lists[list.list];
-				var getId = list.id;
-				var getField = list.field;
-				var getValue = list.value;
-				
+				var getList = list.list = keystone.lists[list.list];
+
 				var fn = _.isFunction(opts.routes.updateField) ? opts.routes.updateField : restSock.updateField;
 				
-				fn(getList, getId, getField, getValue, req,  socket, function(err, doc) {
+				fn(list, req,  socket, function(err, doc) {
 					if(doc) {
 						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, id:getId, data:doc, field:getField, value:getValue, success:true, iden: list.iden});
+						live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, id:list.id, data:doc, field:list.field, value:list.value, success:true, iden: list.iden});
 					} else {
 						// fail
 						live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, success:false, error:err, iden: list.iden});
@@ -617,15 +618,15 @@ Live.prototype.live = function(opts, callback) {
 			 * */
 			socket.on('remove',function(list) {
 				
-				var getList = keystone.lists[list.list];
+				var getList = list.list = keystone.lists[list.list];
 				var getId = list.id;
 				
 				var fn = _.isFunction(opts.routes.remove) ? opts.routes.remove : restSock.remove;
 				
-				fn(getList, getId, socket, function(err, doc) {
+				fn(list, socket, function(err, doc) {
 					if(doc) {
 						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'removed', path:getList.path, id:getId, success:true, iden: list.iden});
+						live.emit('doc:' + socket.id,{type:'removed', path:getList.path, id:list.id, success:true, iden: list.iden});
 					} else {
 						// fail
 						live.emit('doc:' + socket.id,{type:'removed', path:getList.path,  success:false, error:err, iden: list.iden});
@@ -638,6 +639,9 @@ Live.prototype.live = function(opts, callback) {
 	
 	
 }
+// alias apiSockets
+Live.prototype.live = Live.prototype.apiSockets;
+
 
 Live.prototype.set = function(key, value) {
 	

@@ -79,7 +79,7 @@ $(function() {
 	* */
 	socketLists.on('doc',function(data) {
 		console.log('doc',data);
-		
+		updateConsole('doc:'+data.path,data)
 	});
 	socketLists.on('doc:get',function(data) {
 		console.log('doc:get',data);
@@ -119,7 +119,7 @@ $(function() {
 		var emit = $('#emit').val();
 		
 		var $path = $('#path').val();
-		var url = '/api/' + $path;
+		var url = '/ipa/' + $path;
 		var $id = $('#id').val();
 		
 		if(emit === 'list') {
@@ -140,8 +140,11 @@ $(function() {
 		if(emit === 'remove') {
 			url += '/' + $id + '/remove/';
 		}
+		if(emit === 'stop' || emit === 'start') {
+			url += '/' + $id +  '/' + emit + '/';
+		}
 		var finish = $('#testbedform').serialize();
-		url = url + '?' + $('#q').val() + finish;
+		url = url + '?' + finish;
 		$.ajax({
 			url: url
 		})
@@ -154,34 +157,11 @@ $(function() {
 	$('#runsock').click(function(e){
 		e.preventDefault();
 		var emit = $('#emit').val();
-		var $id = $('#id').val();
 		var data = $('#testbedform').serializeFormJSON();
+		data.doc = $('#testbedform').serializeFormJSON();
 		updateConsole('emit: ' + emit)
-		console.log(data)
-		if(emit === 'list') {
-			
-			socketLists.emit('list',data);
-		}
-		if(emit === 'create') {
-			
-			socketLists.emit('create',{list:$('#list').val(),doc:data});
-		}
-		if(emit === 'update') {
-			var id = $id || testDoc._id;
-			socketLists.emit('update',{list:$('#list').val(),id:id,doc:data});
-		}
-		if(emit === 'get') {
-			
-			socketLists.emit('get',data);
-		}
-		if(emit === 'updateField') {
-			
-			socketLists.emit('updateField',data);
-		}
-		if(emit === 'remove') {
-			
-			socketLists.emit('remove',data);
-		}
+		console.log('send:',data)
+		socketLists.emit(emit,data);
 		
 	});	
 	
@@ -189,13 +169,18 @@ $(function() {
 		var next = $(':input:eq(' + ($(':input').index(this) + 1) + ')')
 		//console.log('changeme', e.target.value, next.attr('name'), next);
 		next.attr('name', e.target.value);
+		var aa = $(this).parent().parent().next().find('span');
+		console.log(aa)
+		aa.html(e.target.value);
 	});
 	
-	
+	$(document).on('click','.deleteRow',function(e) {
+		var parent = $(this).parent().parent().remove();
+	});
 	
 	$('.addinputs').click(function(click) {
-			var div = '<div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]"  class="changeme form-control coinstamp"></div></div><div class="col-xs-6"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">value</span><input type="text"  name="val[]" class="form-control coinstamp"></div></div>';
-			$('.adddiv').append(div)
+			var div = '<div class="row"><div class="col-xs-4"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp">key</span><input type="text"  name="key[]"  class="changeme form-control coinstamp"></div></div><div class="col-xs-7"><div class="form-group input-group"><span class="input-group-addon input-group-sm coinstamp"></span><input type="text"  name="val[]" class="form-control coinstamp" placeholder="value"></div></div><div class="col-xs-1"><span class="glyphicon glyphicon-trash text-danger deleteRow"></span></div></div>';
+			$('#addRowHere').before(div)
 	})
 	$.fn.serializeFormJSON = function () {
 

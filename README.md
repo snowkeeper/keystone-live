@@ -13,8 +13,8 @@ keystone.start({
   },
   onStart: function() {
   	Live.
-		live().
-		list();
+		apiSockets().
+		listEvents();
   }
 });
 
@@ -23,10 +23,10 @@ keystone.start({
 ### API
 * [Demo](#demo)
 * [Methods](#method-reference)
-    * [.apiRoutes](#apiroutes---list---options--)  
+    * [.apiRoutes](#apiroutes---list---options--) 
+    * [.apiSockets](#apiSockets---options--callback-) 
     * [.init](#init--keystone-)  
-    * [.list](#list---list--)
-    * [.live](#live---options--callback-)
+    * [.listEvents](#listEvents---list--)
     * [.router](#router-) 
 * [Events](#events)
     * [List Broadcast Events](#list-broadcast-events)
@@ -38,6 +38,7 @@ keystone.start({
 			* [remove](#remove)
 			* [update](#update)
 			* [updateField](#updatefield)
+			* [custom](#custom)
 		* [Broadcast Results](#broadcast-results)
 			* [ROOM: list path](#list)
 			* [ROOM: doc id](#id)
@@ -55,7 +56,7 @@ View the [README](https://github.com/snowkeeper/keystone-live/blob/master/demo) 
 The following is a list of methods available.
 
 #### .apiRoutes ( [ list ], [ options ] )
-> *@param* **list** _{Express()}_ - _Optional_ Keystone List key  
+> *@param* **list** _{String}_ - _Optional_ Keystone List key  
 > *@param* **options** _{Object}_ - _Optional_ Options  
 > _@return_ **this** 
   
@@ -100,7 +101,7 @@ keystone.start({
 >> remove  -   {_Function_}   
 >> update   -   {_Function_}   
 >> updateField   -   {_Function_}   
-
+>> *custom*   -   {_Function_} - add your own routes
 **NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.
 
 ```javascript
@@ -154,6 +155,8 @@ Each registered list gets a set of routes created and attached to the schema.  Y
 | updateField 	| /api/posts/__:id__/updateField   	|
 | remove  	| /api/posts/__:id__/remove  	|  
 
+| *custom*  	| /api/__:id__/*custom*  	|  
+| *custom*  	| /api/*custom*  	|  
 
 Relevant Code:  
 ```javascript
@@ -208,6 +211,17 @@ if(keystone.get('auth')) {
 		middle.push(requireUser);
 	}
 }
+
+// custom routes
+var defaultRoutes = ['list','get','create','remove','update','updateField'];
+_.each(options.routes, function(v,k) {
+	if(!_.includes(defaultRoutes,k)) {
+		api[k] = v(list);
+		app.get('/' + route +'/' + list.path + '/' + k, middle, api[k]);
+		app.get('/' + route +'/' + list.path + '/:id/' + k , middle, api[k]);
+	}
+});
+
 // add routes to express
 app.all('/' + route +'/' + list.path + '/' + createPath, middle, api.create);
 app.get('/' + route +'/' + list.path + '/:id', middle, api.get)
@@ -228,38 +242,8 @@ function requireUser(req, res, next) {
 ```
 ___
 
-#### .init ( [ keystone ] )
-> *@param* **keystone** _{Instance}_  - Pass keystone in as a dependency  
-> _@return_ **this** 
-
-Useful for development if you want to pass Keystone in
-___
-
-
-#### .list ( [ list ] )
-> *@param* **list** _{String}_  - Keystone List Key  
-> _@return_ **this** 
-
-Leave blank to attach live events to all Lists.   
-Should be called after `Live.live()`    
-Learn about attached events    
-[List Broadcast Events](#list-broadcast-events) 
-&nbsp; &nbsp; [Websocket Broadcast Events](#websocket-broadcast-events)
-
-```javascript
-keystone.start({
-	onStart: function() {
-        Live.
-			live().
-			list('Post').
-			list('PostCategory');
-    }
-});
-```
-
-___
-
-#### .live ( [ options ], callback )
+#### .apiSockets ( [ options ], callback )
+> alias `.list` 
 > *@param* **options** _{Object}_  - Options for creating events   
 > _@return_ **callback** _{Function}_
 
@@ -310,11 +294,14 @@ Returns `this` if no **`callback`** provided.
 			}
 		},
 		routes: {
-			get: function(list, id, callback) {
+			// all functions except create and update follow this argument structure
+			get: function(data, socket, callback) {
 				console.log('custom get');
 				if(!_.isFunction(callback)) callback = function(err,data){ 
 					console.log('callback not specified for get',err,data);
 				};
+				var list = data.list;
+				var id = data.id;
 				if(!list) return callback('list required');
 				if(!id) return callback('id required');
 
@@ -329,11 +316,45 @@ Returns `this` if no **`callback`** provided.
 					callback(null, data);
 					
 				});
+			},
+			// create and update follow the same argument structure
+			update: function(data, req, socket, callback) {
+	
+				if(!_.isFunction(callback)) callback = function(err,data){ 
+					console.log('callback not specified for update',err,data);
+				};
+				
+				var list = data.list;
+				var id = data.id;
+				var doc = data.doc;
+				
+				if(!list) return callback('list required');
+				if(!id) return callback('id required');
+				if(!_.isObject(doc)) return callback('data required');
+				if(!_.isObject(req)) req = {};
+				
+				list.model.findById(id).exec(function(err, item) {
+					
+					if (err) return callback(err);
+					if (!item) return callback('not found');
+					
+					item.getUpdateHandler(req).process(doc, function(err) {
+						
+						if (err) return callback(err);
+						
+						var data2 = {}
+						data2[list.path] = item;
+					
+						callback(null, data2);
+						
+					});
+					
+				});
 			}
 		}
 	}
 	// start live events and add emitters to Post
-	Live.live(opts).list('Post');
+	Live.apiSockets(opts).listEvents('Post');
 ```
 Listens to emitter events
 ```javascript
@@ -406,6 +427,38 @@ if(event.field && event.id) {
 
 
 ```
+___
+
+#### .init ( [ keystone ] )
+> *@param* **keystone** _{Instance}_  - Pass keystone in as a dependency  
+> _@return_ **this** 
+
+Useful for development if you want to pass Keystone in
+___
+
+
+#### .listEvents ( [ list ] )
+> alias `.list`  
+> *@param* **list** _{String}_  - Keystone List Key  
+> _@return_ **this** 
+
+Leave blank to attach live events to all Lists.   
+Should be called after `Live.apiSockets()`    
+Learn about attached events    
+[List Broadcast Events](#list-broadcast-events) 
+&nbsp; &nbsp; [Websocket Broadcast Events](#websocket-broadcast-events)
+
+```javascript
+keystone.start({
+	onStart: function() {
+        Live.
+			apiSockets().
+			listEvents('Post').
+			listEvents('PostCategory');
+    }
+});
+```
+
 ___
 
 #### .router ()
@@ -582,6 +635,18 @@ socket.on('create', function(obj) {
 	live.emit('doc:' + socket.id,{type:'created', path:getList.path, id:doc._id, data:doc, success:true, iden: list.iden});
 });
 ```
+###### *custom* 
+```javascript
+socket.emit(*custom*,{
+	list: 'Post', //if available
+    id: '54c9b9888802680b37003af1', //if available
+    iden: _uniqueKey_
+});
+
+socket.on(*custom*, function(obj) {
+	live.emit('doc:' + socket.id,{type:'get', path:list.path,  data:doc, success:true, iden: list.iden});
+});
+```
 
 ###### get 
 ```javascript
@@ -592,7 +657,7 @@ socket.emit('get',{
 });
 
 socket.on('get', function(obj) {
-	live.emit('doc:' + socket.id,{type:'get', path:getList.path, id:getDoc, data:doc, success:true, iden: list.iden});
+	live.emit('doc:' + socket.id,{type:'get', path:list.path, id:list.id, data:doc, success:true, iden: list.iden});
 });
 ```
 
@@ -604,7 +669,7 @@ socket.emit('list',{
 });
 
 socket.on('list', function(obj) {
-	live.emit('doc:' + socket.id,{path:getList.path, data:docs, success:true});
+	live.emit('doc:' + socket.id,{path:list.path, data:docs, success:true});
 });
 
 ```
@@ -618,7 +683,7 @@ socket.emit('remove',{
 });
 
 socket.on('remove', function(obj) {
-	live.emit('doc:' + socket.id,{type:'removed', path:getList.path, id:getId, success:true, iden: list.iden});
+	live.emit('doc:' + socket.id,{type:'removed', path:list.path, id:list.id, success:true, iden: list.iden});
 });
 
 ```
@@ -635,7 +700,7 @@ socket.emit('update',{
 });
 
 socket.on('update', function(obj) {
-	live.emit('doc:' + socket.id,{type:'updated', path:getList.path, id:getId, data:doc, success:true, iden: list.iden});
+	live.emit('doc:' + socket.id,{type:'updated', path:list.path, id:list.id, data:list.doc, success:true, iden: list.iden});
 });
 
 ```
@@ -651,7 +716,7 @@ socket.emit('updateField',{
 });
 // Hello
 socket.on('updateField', function(obj) {
-	live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, id:getId, data:doc, field:getField, value:getValue, success:true, iden: list.iden});
+	live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, id:list.id, data:list.doc, field:list.field, value:list.value, success:true, iden: list.iden});
 });
 
 ```
@@ -675,7 +740,7 @@ The following are valid `event.type` values:
 > save  
 > updated   
 > updatedField  
-
+> *custom* 
 
 Each broadcast is sent to the global **doc** as well as a computed **doc:event.type** channel.  
 **changeEvent** will send the broadcast to the following rooms that are available for listening: 
