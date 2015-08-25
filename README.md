@@ -120,6 +120,12 @@ keystone.start({
 ```
 socket requests look like - see [client](#client) 
 ```
+var data = {
+	list: 'Post',
+	doc: {
+		name: 'test'
+	}
+}
 live.io.emit('create', data);
 ```  
 
