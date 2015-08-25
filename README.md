@@ -170,8 +170,8 @@ Each registered list gets a set of routes created and attached to the schema.  Y
 | update  	| /api/posts/__:id__/update   	|
 | updateField 	| /api/posts/__:id__/updateField   	|
 | remove  	| /api/posts/__:id__/remove  	|  
-| *custom*  	| /api/__:id__/*custom*  	|  
-| *custom*  	| /api/*custom*  	|  
+| *yourRoute*  	| /api/__:id__/*yourRoute*  	|  
+| *yourRoute*  	| /api/*yourRoute*  	|  
 
 Relevant Code:  
 ```javascript
