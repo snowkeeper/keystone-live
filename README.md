@@ -101,8 +101,26 @@ keystone.start({
 >> remove  -   {_Function_}   
 >> update   -   {_Function_}   
 >> updateField   -   {_Function_}   
->> *custom*   -   {_Function_} - add your own routes
-**NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.
+>> *custom*   -   {_Function_} - add your own routes  
+**NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.  
+
+**Modifiers:** each request can have relevant modifiers added to filter the results.   
+> include: 'name, slug'  - *fields to include in result*  
+> exclude: '__v'  - *fields to exclude from result*  
+> populate: 'createdBy updatedBy'  - *fields to populate*  
+> populate: 0  - *do not populate - createdBy and updatedBy are defaults*  
+> limit: 10  - *limit results*  
+> skip: 10  - *skip results*  
+> sort: {}  - *sort results*  
+
+**route** requests look like  
+```
+/api/posts/55dbe981a0699a5f76354707/?list=Post&path=posts&emit=get&id=55dbe981a0699a5f76354707&exclude=__v&populate=0
+```
+socket requests look like - see [client](#client) 
+```
+live.io.emit('create', data);
+```  
 
 ```javascript
 	var opts = {
