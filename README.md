@@ -102,6 +102,7 @@ keystone.start({
 >> update   -   {_Function_}   
 >> updateField   -   {_Function_}   
 >> *custom*   -   {_Function_} - add your own routes  
+
 **NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.  
 
 **Modifiers:** each request can have relevant modifiers added to filter the results.   
