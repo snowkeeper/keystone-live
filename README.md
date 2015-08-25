@@ -118,7 +118,7 @@ keystone.start({
 ```
 /api/posts/55dbe981a0699a5f76354707/?list=Post&path=posts&emit=get&id=55dbe981a0699a5f76354707&exclude=__v&populate=0
 ```
-socket requests look like - see [client](#client) 
+socket requests look like - see [socket requests](#crud-listeners) and [client](#client) 
 ```
 var data = {
 	list: 'Post',
@@ -698,7 +698,7 @@ socket.on('create', function(obj) {
 ```
 ###### *custom* 
 ```javascript
-socket.emit(*custom*,{
+socket.emit(yourCustomRoom,{
 	list: 'Post', //if available
     id: '54c9b9888802680b37003af1', //if available
     iden: _uniqueKey_
