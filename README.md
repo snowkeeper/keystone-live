@@ -191,11 +191,11 @@ socket requests look like - see [socket requests](#crud-listeners) and [client](
 ```
 var data = {
 	list: 'Post',
-	doc: {
-		name: 'test'
-	}
+	limit: 10,
+	skip: 10,
+	sort: {}
 }
-live.io.emit('create', data);
+live.io.emit('list', data);
 ```  
 
 Source Code Snippet:  
