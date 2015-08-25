@@ -198,7 +198,7 @@ var data = {
 live.io.emit('list', data);
 ```  
 
-Source Code Snippet:  
+**Source Code Snippet:**  
 ```javascript
 // add the route without pre and trailing slash
 var route = options.route || 'api';
