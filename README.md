@@ -187,16 +187,7 @@ Each registered list gets a set of routes created and attached to the schema.  Y
 ```
 /api/posts/55dbe981a0699a5f76354707/?list=Post&path=posts&emit=get&id=55dbe981a0699a5f76354707&exclude=__v&populate=0
 ```
-socket requests look like - see [socket requests](#crud-listeners) and [client](#client) 
-```
-var data = {
-	list: 'Post',
-	limit: 10,
-	skip: 10,
-	sort: {}
-}
-live.io.emit('list', data);
-```  
+ 
 
 **Source Code Snippet:**  
 ```javascript
@@ -418,6 +409,28 @@ Returns `this` if no **`callback`** provided.
 	// start live events and add emitters to Post
 	Live.apiSockets(opts).listEvents('Post');
 ```
+
+**Modifiers:** each request can have relevant modifiers added to filter the results.   
+> include: 'name, slug'  - *fields to include in result*  
+> exclude: '__v'  - *fields to exclude from result*  
+> populate: 'createdBy updatedBy'  - *fields to populate*  
+> populate: 0  - *do not populate - createdBy and updatedBy are defaults*  
+> limit: 10  - *limit results*  
+> skip: 10  - *skip results*  
+> sort: {}  - *sort results*  
+
+
+socket requests look like - see [socket requests](#crud-listeners) and [client](#client) 
+```
+var data = {
+	list: 'Post',
+	limit: 10,
+	skip: 10,
+	sort: {}
+}
+live.io.emit('list', data);
+```  
+
 Listens to emitter events
 ```javascript
 /* add Live doc events */
