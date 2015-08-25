@@ -135,7 +135,7 @@ keystone.start({
 					});
 				}
 			},
-			*yourOwnFunction*: function(list) {
+			yourCustomFunction: function(list) {
 				return function(req, res) {
 					console.log('my custom function');
 					list.model.findById(req.params.id).exec(function(err, item) {
@@ -333,7 +333,7 @@ Returns `this` if no **`callback`** provided.
 					
 				});
 			},
-			*yourCustomRoom*: function(data, socket, callback) {
+			yourCustomRoom: function(data, socket, callback) {
 				console.log('this is my custom room listener function');
 				if(!_.isFunction(callback)) callback = function(err,data){ 
 					console.log('callback not specified for get',err,data);
