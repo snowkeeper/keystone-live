@@ -23,11 +23,11 @@ keystone.start({
 ### API
 * [Demo](#demo)
 * [Methods](#method-reference)
-    * [.apiRoutes](#apiroutes---list---options--) 
-    * [.apiSockets](#apisockets---options--callback-) 
-    * [.init](#init---keystone--)  
-    * [.listEvents](#listevents---list--)
-    * [.router](#router-) 
+    * [.apiRoutes](#apiRoutes) 
+    * [.apiSockets](#apiSockets) 
+    * [.init](#init)  
+    * [.listEvents](#listEvents)
+    * [.router](#router) 
 * [Events](#events)
     * [List Broadcast Events](#list-broadcast-events)
     * [Websocket Broadcast Events](#websocket-broadcast-events)
@@ -55,7 +55,7 @@ View the [README](https://github.com/snowkeeper/keystone-live/blob/master/demo) 
 ## Method Reference
 The following is a list of methods available.
 
-#### .apiRoutes ( [ list ], [ options ] )
+#### <a name="apiRoutes"></a>.apiRoutes ( [ list ], [ options ] )
 > *@param* **list** _{String}_ - _Optional_ Keystone List key  
 > *@param* **options** _{Object}_ - _Optional_ Options  
 > _@return_ **this** 
@@ -257,7 +257,7 @@ function requireUser(req, res, next) {
 ```
 ___
 
-#### .apiSockets ( [ options ], callback )
+#### <a name="apiSockets"></a>.apiSockets ( [ options ], callback )
 > alias `.list` 
 > *@param* **options** _{Object}_  - Options for creating events   
 > _@return_ **callback** _{Function}_
@@ -466,7 +466,7 @@ if(event.field && event.id) {
 ```
 ___
 
-#### .init ( [ keystone ] )
+#### <a name="init"></a>.init ( [ keystone ] )
 > *@param* **keystone** _{Instance}_  - Pass keystone in as a dependency  
 > _@return_ **this** 
 
@@ -474,7 +474,7 @@ Useful for development if you want to pass Keystone in
 ___
 
 
-#### .listEvents ( [ list ] )
+#### <a name="listEvents"></a>.listEvents ( [ list ] )
 > alias `.list`  
 > *@param* **list** _{String}_  - Keystone List Key  
 > _@return_ **this** 
@@ -498,13 +498,12 @@ keystone.start({
 
 ___
 
-#### .router ()
+#### <a name="router"></a>.router ()
 > _@return_ **this** 
 
-Will provide mock routing for node-webkit operation
-
 ```javascript
-
+	this.MockRes = require('mock-res');
+	this.MockReq = require('mock-req');
 ```
 ___
 
