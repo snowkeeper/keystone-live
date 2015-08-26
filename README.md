@@ -284,7 +284,8 @@ Returns `this` if no **`callback`** provided.
 **`options`** is an object that may contain: 
 > __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
-> __auth__ -   {_Function_} - require user    
+> __auth__ -   {_Function_} - require user   
+> __query__   - {_Object_} search object to place within `list.model.find(options.query)`   
 > __routes__   - {_Object_} override the default routes
 >> create   -   {_Function_}   
 >> get   -   {_Function_}   
