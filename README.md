@@ -171,8 +171,8 @@ Each registered list gets a set of routes created and attached to the schema.  Y
 | update  	| /api/posts/__:id__/update   	|
 | updateField 	| /api/posts/__:id__/updateField   	|
 | remove  	| /api/posts/__:id__/remove  	|  
-| *yourRoute*  	| /api/__:id__/*yourRoute*  	|  
-| *yourRoute*  	| /api/*yourRoute*  	|  
+| *yourRoute*  	| /api/posts/__:id__/*yourRoute*  	|  
+| *yourRoute*  	| /api/posts/*yourRoute*  	|  
 
 **Modifiers:** each request can have relevant modifiers added to filter the results.   
 > include: 'name, slug'  - *fields to include in result*  
