@@ -479,6 +479,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 							}
 							if(returnData) {
 								// send data to any listeners
+								data.list = data.path;
 								live.emit('doc:' + socket.id,{type:k, path:data.path, received:data, data:returnData, success:true, iden: data.iden});
 							} else {
 								// fail
@@ -496,6 +497,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 *   sort obj -  sort: { title: 1 } ( default:  sort: {} )
 			 *   limit number -  limit: 10 (default)
 			 *   skip number -  skip: 0 (default)
+			 *   find - {name:'fred'} alias query
 			 * */
 			socket.on('list',function(list) {
 				debug(list)
@@ -545,6 +547,30 @@ Live.prototype.apiSockets = function(opts, callback) {
 					});
 					
 				}
+			});
+			/* *
+			 * find listener
+			 * opts.routes.find = function(list, socket, callback)
+			 * */
+			socket.on('find',function(list) {
+				
+				list.list = keystone.lists[list.list];
+				if(!list.list) {
+					// fail
+					live.emit('doc:' + socket.id,{type:'find', path:list.list,  success:false, error:err, iden: list.iden});
+				}
+				
+				var fn = _.isFunction(opts.routes.list) ? opts.routes.list : restSock.list;
+				
+				fn(list, socket, function(err, doc) {
+					if(doc) {
+						// send data to any listeners
+						live.emit('doc:' + socket.id,{type:'find', path:list.list.path, id:list.id, data:doc, success:true, iden: list.iden});
+					} else {
+						// fail
+						live.emit('doc:' + socket.id,{type:'find', path:list.list.path,  success:false, error:err, iden: list.iden});
+					}
+				});
 			});
 			/* *
 			 * get listener
