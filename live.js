@@ -467,7 +467,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 * 
 			 * */
 			
-			var defaultRoutes = ['list','get','create','remove','update','updateField'];
+			var defaultRoutes = ['list','find','get','create','remove','update','updateField'];
 			
 			_.each(opts.routes, function(fn,k) {
 				if(!_.includes(defaultRoutes,k)) {

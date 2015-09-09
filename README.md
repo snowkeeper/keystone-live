@@ -285,10 +285,12 @@ Returns `this` if no **`callback`** provided.
 > __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
 > __auth__ -   {_Function_} - require user   
-> __query__ - {_Object_} - search object to place within `list.model.find(options.query)` on `list` only 
+> __find__ - {_Object_} - search object to place within `list.model.find(options.find)` on `list` & `find` only 
+> __query__ - {_Object_} - alias of find
 > __routes__ - {_Object_} - override the default routes
 >> create   -   {_Function_}   
 >> get   -   {_Function_}   
+>> find   -   {_Function_} *alias of **list** *
 >> list   -   {_Function_}   
 >> remove   -   {_Function_}   
 >> update   -   {_Function_}   
@@ -349,7 +351,7 @@ Returns `this` if no **`callback`** provided.
 					
 				});
 			},
-			yourCustomRoom: function(data, req, socket, callback) {
+			yourCustomRoute: function(data, req, socket, callback) {
 				// req contains a user field with the session id
 				
 				console.log('this is my custom room listener function');
