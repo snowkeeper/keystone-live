@@ -274,7 +274,7 @@ function requireUser(req, res, next) {
 ___
 
 #### <a name="apiSockets"></a>.apiSockets ( [ options ], callback )
-> alias `.list`   
+> alias `.live`   
 > *@param* **options** _{Object}_  - Options for creating events   
 > _@return_ **callback** _{Function}_
 
