@@ -290,7 +290,7 @@ Returns `this` if no **`callback`** provided.
 > __routes__ - {_Object_} - override the default routes  
 >> create   -   {_Function_}   
 >> get   -   {_Function_}   
->> find   -   {_Function_} *alias of * **list**   
+>> find   -   {_Function_} *alias of*  **list**   
 >> list   -   {_Function_}   
 >> remove   -   {_Function_}   
 >> update   -   {_Function_}   
