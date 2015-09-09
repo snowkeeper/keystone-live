@@ -285,7 +285,7 @@ Returns `this` if no **`callback`** provided.
 > __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
 > __auth__ -   {_Function_} - require user   
-> __find__ - {_Object_} - search object to place within `list.model.find(options.find)` on `list` & `find` only  
+> __find__ - {_Object_} - `model.find(options.find)` all except `create`  
 > __query__ - {_Object_} - alias of find  
 > __routes__ - {_Object_} - override the default routes  
 >> create   -   {_Function_}   
