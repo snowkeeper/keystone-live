@@ -12,6 +12,9 @@ var sock = require('socket.io')();
 var restSock = require('./lib/restful-sock');
 var restApi = require('./lib/restful-api');
 var sharedsession = require("express-socket.io-session");
+
+var debug = require('debug')('keystone-live');
+
 /**
  * Live Constructor
  * =================
@@ -338,10 +341,10 @@ Live.prototype.apiSockets = function(opts, callback) {
 		// check for a session and see if the user can
 		var authFunction = function(socket, next) {
 			if (socket.handshake.session) {
-				//console.log(socket.handshake.session)
+				debug('live socket session', socket.handshake.session)
 				var session = socket.handshake.session;
 				if(!session.userId) {
-					//console.log('request without userId session');
+					debug('request without userId session');
 					return next(new Error('Authentication error'));
 				} else {
 					var User = keystone.list(keystone.get('user model'));
@@ -360,7 +363,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				
 				}
 			} else {
-				//console.log('session error');
+				debug('session error');
 				next(new Error('Authentication session error'));
 			}
 		
@@ -410,9 +413,18 @@ Live.prototype.apiSockets = function(opts, callback) {
 			live.on('list:' + socket.id, listEventFunction);
 			
 			// event functions
-			function listEventFunction(event) {
-				event.to = 'emit';
-				socket.emit('list', event);
+			function listEventFunction(event) { 
+				var send = {
+					to: 'emit',
+					request: event.req,
+					data: event.res.data
+				}	
+				debug('sending list',event.req)			
+				if(event.req.iden) {
+					debug('sending list to iden',event.req.iden)
+					socket.emit(event.req.iden , send);	
+				}
+				socket.emit('list', send);
 			}
 			function docPreEventFunction(event) {
 				// send update info to global log 
@@ -430,11 +442,13 @@ Live.prototype.apiSockets = function(opts, callback) {
 			function docEventFunction(event) { 
 				live.emit('log:doc', event);
 				// emit to requesting user
+				debug('sending doc',event.iden)
 				socket.emit('doc', event);
 				socket.emit('doc:' + event.type, event);		
 				/* send the users change event */
 				var cmpUpdate = ['removed', 'updated', 'created', 'saved'];
-				if(_.contains(cmpUpdate, event.type) && event.success === true) {
+				if((_.contains(cmpUpdate, event.type) || event.iden) && event.success === true) {
+					debug('sending doc to iden',event.iden)
 					changeEvent(event, socket); // bottom page
 				}
 			}
@@ -483,11 +497,13 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 *   skip number -  skip: 0 (default)
 			 * */
 			socket.on('list',function(list) {
-				//console.log(list)
+				debug(list)
+				var req = _.clone(list);
 				if(!_.isObject(list) || !list.list ) {
 					/* no list given so grab all lists */
 					var p = [];
 					var keys = _.keys(keystone.lists);
+					
 					async.each(keys,function(key,next) {
 							
 						getList(keystone.lists[key], list || {}, function(obj){
@@ -497,17 +513,17 @@ Live.prototype.apiSockets = function(opts, callback) {
 						
 					},function(err) {
 						// send all lists
-						live.emit('list:' + socket.id,p);
+						live.emit('list:' + socket.id, {req: req, res: p});
 					});
 					
 				} else if(_.isObject(keystone.lists[list.list])) {
 					// send the requested list
 					getList(keystone.lists[list.list], list || {}, function(obj){
-						live.emit('list:' + socket.id,obj);	
+						live.emit('list:' + socket.id,{req: req, res: obj});	
 					});
 				} else {
 					// send error
-					live.emit('list:' + socket.id,{list:list, success:false});
+					live.emit('list:' + socket.id,{req: req, res: {success:false}});
 				}
 				
 				/* retrieve the results */
@@ -712,6 +728,7 @@ function changeEvent(event, emitter) {
 	// unique identifier sent by user - doc:iden
 	if(event.iden) {
 		emitter.to(event.iden).emit('doc' , event);
+		emitter.emit(event.iden , event);
 		emitter.to(event.iden).emit('doc:' + event.type , event);
 	}
 	// the doc id - doc:_id

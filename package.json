@@ -1,6 +1,6 @@
 {
   "name": "keystone-live",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "description": "KesytoneJS List live events",
   "main": "live.js",
   "scripts": {},
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "async": "^0.9.0",
+    "debug": "^2.2.0",
     "express-socket.io-session": "^1.2.1",
     "keystone": "^0.3.0",
     "lodash": "^3.0.0",
