@@ -472,7 +472,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 			_.each(opts.routes, function(fn,k) {
 				if(!_.includes(defaultRoutes,k)) {
 					socket.on(k, function(data) {
-						fn(keystone.lists[data.list], data, socket, function(err, returnData, callback) {
+						data.list = keystone.lists[data.list];
+						fn( data, req, socket, function(err, returnData, callback) {
 							if(_.isFunction(callback)) {
 								callback(live);
 							}

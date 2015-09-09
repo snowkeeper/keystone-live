@@ -349,7 +349,9 @@ Returns `this` if no **`callback`** provided.
 					
 				});
 			},
-			yourCustomRoom: function(data, socket, callback) {
+			yourCustomRoom: function(data, req, socket, callback) {
+				// req contains a user field with the session id
+				
 				console.log('this is my custom room listener function');
 				if(!_.isFunction(callback)) callback = function(err,data){ 
 					console.log('callback not specified for get',err,data);
