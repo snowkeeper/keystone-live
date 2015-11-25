@@ -55,7 +55,7 @@ View the [README](https://github.com/snowkeeper/keystone-live/blob/master/demo) 
 ## Method Reference
 The following is a list of methods available.
 
-#### <a name="apiRoutes"></a>.apiRoutes ( [ list ], [ options ] )
+#### .apiRoutes ( [ list ], [ options ] )
 > *@param* **list** _{String}_ - _Optional_ Keystone List key  
 > *@param* **options** _{Object}_ - _Optional_ Options  
 > _@return_ **this** 
