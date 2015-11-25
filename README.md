@@ -273,7 +273,7 @@ function requireUser(req, res, next) {
 ```
 ___
 
-#### <a name="apiSockets"></a>.apiSockets ( [ options ], callback )
+#### .apiSockets ( [ options ], callback )
 > alias `.live`   
 > *@param* **options** _{Object}_  - Options for creating events   
 > _@return_ **callback** _{Function}_
@@ -517,7 +517,7 @@ Useful for development if you want to pass Keystone in
 ___
 
 
-#### <a name="listEvents"></a>.listEvents ( [ list ] )
+#### .listEvents ( [ list ] )
 > alias `.list`  
 > *@param* **list** _{String}_  - Keystone List Key  
 > _@return_ **this** 
@@ -541,7 +541,7 @@ keystone.start({
 
 ___
 
-#### <a name="router"></a>.router ()
+#### .router ()
 > _@return_ **this** 
 
 ```javascript
