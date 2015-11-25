@@ -316,14 +316,17 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	var io = this.io = sock.attach(keystone.httpServer);
 	
+	// keystone moved the session to a property in 0.4.x 
+	var expressSession = keystone.expressSession || keystone.get('express session');
+	
 	/* set up session middleware */
-	io.use(sharedsession(keystone.get('express session'), keystone.get('session options').cookieParser));
+	io.use(sharedsession(expressSession, keystone.get('session options').cookieParser));
 	
 	/* create namespace */
 	var listNamespace = live._live.namespace.lists =  io.of('/lists');
 	
 	/* session management */
-	listNamespace.use(sharedsession(keystone.get('express session'), keystone.get('session options').cookieParser));
+	listNamespace.use(sharedsession(expressSession, keystone.get('session options').cookieParser));
 	
 	/* auth middleware */
 	/** 
