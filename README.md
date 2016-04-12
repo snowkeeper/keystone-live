@@ -119,17 +119,17 @@ For Keystone v0.4.x `apiRoutes` must be added in routes as the `onMount` event i
 ```javascript
 keystone.set('routes', function(app) {
 	
-      var opts = {
-	exclude: '_id,__v',
-	route: 'galleries',
-	paths: {
-	  get: 'find',
-	  create: 'new'
-	}
-      }
-      live.
-	apiRoutes('Post').
-	apiRoutes('Gallery',opts);
+    var opts = {
+	  exclude: '_id,__v',
+	  route: 'galleries',
+	  paths: {
+	    get: 'find',
+	    create: 'new'
+	  }
+    }
+    live.
+	  apiRoutes('Post').
+	  apiRoutes('Gallery',opts);
 });
 ```
 **`options`** is an object that may contain: 
