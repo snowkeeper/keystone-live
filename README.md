@@ -55,6 +55,13 @@ View the [README](https://github.com/snowkeeper/keystone-live/blob/master/demo) 
 ## Method Reference
 The following is a list of methods available.
 
+#### .init ( keystone )
+> *@param* **keystone** _{Instance}_ - Keystone instance  
+> _@return_ **this** 
+
+In order to use keystone-live 2.0+ you must include a keystone instance with `.init(keystone)`.  Keystone-live <2.0 `.init` is optional.
+
+
 #### .apiRoutes ( [ list ], [ options ] )
 > *@param* **list** _{String}_ - _Optional_ Keystone List key  
 > *@param* **options** _{Object}_ - _Optional_ Options  
@@ -62,22 +69,22 @@ The following is a list of methods available.
   
 Set `list`  =  `false` to attach routes to all lists. Call multiple times to attach to chosen Lists.  
 
+For Keystone v0.4.x `apiRoutes` must be added in routes as the `onMount` event is fired too late.  For Keystone 0.3.x and below you can add `apiRoutes` in the `onMount` event.  
+
 ```javascript
-keystone.start({
-	onMount: function() {
-    	var opts = {
-			exclude: '_id,__v',
-			route: 'galleries',
-            paths: {
-				get: 'find',
-                create: 'new'
-			}
-		}
-        live.
-        	apiRoutes('Post').
-            apiRoutes('Gallery',opts);
-        
-    }
+keystone.set('routes', function(app) {
+	
+      var opts = {
+	exclude: '_id,__v',
+	route: 'galleries',
+	paths: {
+	  get: 'find',
+	  create: 'new'
+	}
+      }
+      live.
+	apiRoutes('Post').
+	apiRoutes('Gallery',opts);
 });
 ```
 **`options`** is an object that may contain: 

@@ -3,9 +3,9 @@
  */
 
 var _ = require('lodash');
-var	keystone = require('keystone');
+var keystone = false;
 var	async = require('async');
-var	utils = keystone.utils;
+var	utils;
 var events = require('events');
 var util = require('util');
 var sock = require('socket.io')();
@@ -45,7 +45,11 @@ var live = module.exports = exports = new Live();
 Live.prototype.init = function(Keystone) {
 	
 	if(Keystone) keystone = Keystone;
-	//keystone = require('keystone');
+	if (!keystone) {
+		console.log('Failed to start keystone-live.  You must include a keystone object with .init(keystone)');
+		process.exit();
+	}
+	utils = keystone.utils;
 	return this;
 
 }
@@ -69,6 +73,8 @@ Live.prototype.router = function(path, callback) {
  * 
  * */
 Live.prototype.apiRoutes = function(list, options) {
+	
+	checkForKeystone();
 	
 	var app = keystone.app;
 	
@@ -208,6 +214,8 @@ Live.prototype.apiRoutes = function(list, options) {
  * */
 Live.prototype.listEvents = function(list) {
 	
+	checkForKeystone();
+	
 	var live = this;	
 	
 	if(list && _.isObject(keystone.lists[list])) {
@@ -298,6 +306,8 @@ Live.prototype.list = Live.prototype.listEvents;
  * 
  * */
 Live.prototype.apiSockets = function(opts, callback) {
+	
+	checkForKeystone();
 	
 	var live = this;
 	
@@ -788,5 +798,10 @@ function changeEvent(event, emitter) {
 	
 }
 
-
+function checkForKeystone() {
+	if (!keystone) {
+		console.log('Failed to start keystone-live.  You must include a keystone object with .init(keystone)');
+		process.exit();
+	}
+}
 
