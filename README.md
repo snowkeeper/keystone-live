@@ -22,17 +22,17 @@ Live.init(keystone);
 
 keystone.set('routes', function(app) {
 	
-      var opts = {
-	exclude: '_id,__v',
-	route: 'galleries',
-	paths: {
-	  get: 'find',
-	  create: 'new'
-	}
-      }
-      live.
-	apiRoutes('Post').
-	apiRoutes('Gallery',opts);
+    var opts = {
+	  exclude: '_id,__v',
+	  route: 'galleries',
+	  paths: {
+	    get: 'find',
+	    create: 'new'
+	  }
+    }
+    live.
+	  apiRoutes('Post').
+	  apiRoutes('Gallery',opts);
 });
 
 keystone.start({
