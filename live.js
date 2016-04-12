@@ -45,11 +45,11 @@ var live = module.exports = exports = new Live();
 Live.prototype.init = function(Keystone) {
 	
 	if(Keystone) keystone = Keystone;
-	if (!keystone) {
-		console.log('Failed to start keystone-live.  You must include a keystone object with .init(keystone)');
-		process.exit();
-	}
+	
+	checkForKeystone();
+	
 	utils = keystone.utils;
+	
 	return this;
 
 }
