@@ -4,8 +4,48 @@ Attach events to Lists and create simple restful routes.
 ```
 npm install keystone-live
 ```
+
+For Keystone v0.4.x `apiRoutes` must be added in routes as the `onMount` event is fired too late.    
+For keystone-live 0.2.0 you must include a keystone instance with `init`.  
+
+```javascript
+
+var keystone = require('keystone');
+var Live = require('keystone-live');
+
+Live.init(keystone);
+
+keystone.set('routes', function(app) {
+	
+      var opts = {
+	exclude: '_id,__v',
+	route: 'galleries',
+	paths: {
+	  get: 'find',
+	  create: 'new'
+	}
+      }
+      live.
+	apiRoutes('Post').
+	apiRoutes('Gallery',opts);
+});
+
+keystone.start({
+  onStart: function() {
+  	Live.
+		apiSockets().
+		listEvents();
+  }
+});
+```
+
+For Keystone 0.3.x and below you can add `apiRoutes` in the `onMount` event.  
+
 ```javascript
 var Live = require('keystone-live');
+
+// optionally add the keystone instance
+// Live.init(keystone)
 
 keystone.start({
   onMount: function() {
