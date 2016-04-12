@@ -13,6 +13,11 @@ For keystone-live 0.2.0 you must include a keystone instance with `init`.
 var keystone = require('keystone');
 var Live = require('keystone-live');
 
+// Add keystone.init()
+// Add keystone models
+
+// ...
+
 Live.init(keystone);
 
 keystone.set('routes', function(app) {
