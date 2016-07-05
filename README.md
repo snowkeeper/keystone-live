@@ -544,32 +544,39 @@ global events sent to rooms on change events only.
 
 // room unique identifier sent by user - emit doc
 if(event.iden) {
-  emitter.to(event.iden).emit('doc' , event);
-  emitter.to(event.iden).emit('doc:' + event.type , event);
+	emitter.to(event.iden).emit('doc' , event);
+	emitter.emit(event.iden , event);
+	emitter.to(event.iden).emit('doc:' + event.type , event);
 }
-// room doc id - emit doc
+// the doc id - doc:_id
 if(event.id) {
-  emitter.to(event.id).emit('doc', event);
-  emitter.to(event.id).emit('doc:' + event.type, event);
+	emitter.to(event.id).emit('doc', event);
+	emitter.emit(event.id, event);
+	emitter.to(event.id).emit('doc:' + event.type, event);
 }
-// room doc slug - emit doc
+// the doc slug - doc:slug
 if(event.data && event.data.slug) {
-  emitter.to(event.data.slug).emit('doc', event);
-  emitter.to(event.data.slug).emit('doc:' + event.type, event);
+	emitter.to(event.data.slug).emit('doc', event);
+	emitter.to(event.data.slug).emit('doc:' + event.type, event);
+	emitter.emit(event.iden , event);
 }
-// room path - emit doc
+// the list path - doc:path
 if(event.path) {
-  emitter.to(event.path).emit('doc', event);
-  emitter.to(event.path).emit('doc:' + event.type, event);
+	emitter.to(event.path).emit('doc', event);
+	emitter.to(event.path).emit('doc:' + event.type, event);
+	emitter.emit(event.path , event);
 }
 // individual field listening - 
 if(event.field && event.id) {
-  // room event.id:event.field     emit doc
-  emitter.to(event.id + ':' + event.field).emit('doc', event);
-  emitter.to(event.id + ':' + event.field).emit('doc:' + event.type, event);
-  // room path    emit field:event.id:event.field
-  emitter.to(event.path).emit('field:' + event.id + ':' + event.field, event);
-  emitter.to(event.path + ':field').emit('field:' + event.id + ':' + event.field, event);
+	// room event.id:event.field     emit doc
+	emitter.to(event.id + ':' + event.field).emit('doc', event);
+	emitter.to(event.id + ':' + event.field).emit('doc:' + event.type, event);
+	emitter.emit(event.id + ':' + event.field , event);
+	emitter.emit(event.field , event);
+	// room path    emit field:event.id:event.field
+	emitter.to(event.path).emit('field:' + event.id + ':' + event.field, event);
+	emitter.to(event.path + ':field').emit('field:' + event.id + ':' + event.field, event);
+	
 }
 
 
