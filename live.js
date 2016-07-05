@@ -395,6 +395,7 @@ Live.prototype.list = Live.prototype.listEvents;
  * */
 Live.prototype.apiSockets = function(opts, callback) {
 	
+	// quit if no keystone
 	checkForKeystone();
 	
 	var live = this;
@@ -409,7 +410,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	if(!_.isObject(opts)) opts = {};
 	if(!_.isObject(opts.routes)) opts.routes = {};
-	
+		
 	sock.serveClient(false);
 	
 	var io = this.io = sock.attach(keystone.httpServer);
@@ -436,6 +437,36 @@ Live.prototype.apiSockets = function(opts, callback) {
 	 * set auth empty or false to skip global auth
 	 * */
 	
+	var defaultAuth = function(socket, next) {
+		if (socket.handshake.session) {
+			debug('live socket session', socket.handshake.session)
+			var session = socket.handshake.session;
+			if(!session.userId) {
+				debug('request without userId session');
+				return next(new Error('Authentication error'));
+			} else {
+				var User = keystone.list(keystone.get('user model'));
+				User.model.findById(session.userId).exec(function(err, user) {
+
+					if (err) {
+						return next(new Error(err));
+					}
+					if(!user.isAdmin) {
+						return next(new Error('User is not authorized'))
+					}
+					session.user = user;
+					next();
+
+				});
+			
+			}
+		} else {
+			debug('session error');
+			next(new Error('Authentication session error'));
+		}
+	
+	} // end default auth function
+	
 	var authFunction = function(socket, next) {
 		next();
 	}
@@ -446,36 +477,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	} else if(opts.auth) {
 		// check for a session and see if the user can
-		authFunction = function(socket, next) {
-			if (socket.handshake.session) {
-				debug('live socket session', socket.handshake.session)
-				var session = socket.handshake.session;
-				if(!session.userId) {
-					debug('request without userId session');
-					return next(new Error('Authentication error'));
-				} else {
-					var User = keystone.list(keystone.get('user model'));
-					User.model.findById(session.userId).exec(function(err, user) {
-
-						if (err) {
-							return next(new Error(err));
-						}
-						if(!user.isAdmin) {
-							return next(new Error('User is not authorized'))
-						}
-						session.user = user;
-						next();
-
-					});
-				
-				}
-			} else {
-				debug('session error');
-				next(new Error('Authentication session error'));
-			}
-		
-		} // end auth function
-	} // end auth seletion
+		authFunction = defaultAuth;
+	} // end auth function setup
 	
 	/* add global auth*/
 	listNamespace.use(function(socket, next){
@@ -487,8 +490,6 @@ Live.prototype.apiSockets = function(opts, callback) {
 		 * auth is always first and is global
 		 * 
 		 * */
-		
-		// run global auth
 		if(!keystone.get('auth')) {
 			next();
 		} else {
@@ -565,7 +566,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				/* send the users change event */
 				var cmpUpdate = ['removed', 'updated', 'created', 'saved'];
 				if((_.contains(cmpUpdate, event.type) || event.iden) && event.success === true) {
-					debug('sending doc to iden',event.iden)
+					debug('sending doc to iden', event.iden)
 					changeEvent(event, socket); // bottom page
 				}
 			}
@@ -575,7 +576,11 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 * 
 			 * each method can execute a custom route
 			 * routes are added in the opts object
-			 * opts.routes.list = function(List, options, socket, callback)
+			 * opts.routes.list = function(data, options, socket, callback)
+			 * 
+			 * You can also set custom auth and middleware
+			 * opts.routes.list = { route, auth, middleware }
+			 * 
 			 * callback would contain the return object
 			 * 
 			 * replace each method with its own arguments.  
@@ -586,11 +591,11 @@ Live.prototype.apiSockets = function(opts, callback) {
 			
 			var defaultRoutes = ['list','find','get','create','remove','update','updateField'];
 			
-			_.each(opts.routes, function(fn,k) {
-				if(!_.includes(defaultRoutes,k)) {
+			_.each(opts.routes, function(fn, k) {
+				if(!_.includes(defaultRoutes, k)) {
 					socket.on(k, function(data) {
 						data.list = keystone.lists[data.list];
-						fn( data, req, socket, function(err, returnData, callback) {
+						fn(data, req, socket, function(err, returnData, callback) {
 							if(_.isFunction(callback)) {
 								callback(live);
 							}
@@ -797,6 +802,13 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	return callback();           
 	
+	
+	/* 
+	 * middleware stack management for individual lists and paths
+	 * */
+	function addMiddleware(data, opts, socket) {
+		
+	}
 	
 }
 // alias apiSockets

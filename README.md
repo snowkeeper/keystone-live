@@ -349,19 +349,31 @@ Create the socket server and attach to events
 Returns `this` if no **`callback`** provided.  
 
 **`options`** is an object that may contain: 
-> __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)  
+> __exclude__ - {_String_}  - Comma seperated Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
 > __auth__ -   {_Function_} - require user   
 > __find__ - {_Object_} - `model.find(options.find)` all except `create`  
-> __query__ - {_Object_} - alias of find  
+> __query__ - {_Object_} - alias of find   
+> __listConfig__ - {_Object_} - configuration for lists  
+>> only   -   {_String_}  -  comma seperated Lists allowed (takes first precedence)
+>> exclude   -   {_String_}   -  comma seperated Lists not to allow  
+> __lists__ - {_Object_} - individual List config   
+>> Each Key should be a valid List with an object consisting of:  
+>>> _route-overrides_   -   {_...Object|Function_}  -  just like __routes__ option  
+>>> auth   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths
+>>> middleware   -   {_...Array|Function_}   - global middleware stack for all paths       
 > __routes__ - {_Object_} - override the default routes  
->> create   -   {_Function_}   
->> get   -   {_Function_}   returns `Object`  
->> find   -   {_Function_} *alias of*  **list**   
->> list   -   {_Function_}  returns `Array` of `Objects`   
->> remove   -   {_Function_}   
->> update   -   {_Function_}   
->> updateField   -   {_Function_}   
+>> Each route can be a Function or an object consisting of:     
+>>> route   -   {_Function_}  -  route to run
+>>> auth   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth  
+>>> middleware   -   {_...Array|Function_}   -  middleware stack  
+>> create   -   {_...Object|Function_}   
+>> get   -   {_...Object|Function_}   returns `Object`  
+>> find   -   {_...Object|Function_} *alias of*  **list**   
+>> list   -   {_...Object|Function_}  returns `Array` of `Objects`   
+>> remove   -   {_...Object|Function_}   
+>> update   -   {_...Object|Function_}   
+>> updateField   -   {_...Object|Function_}   
 
 ```javascript
 	var opts = {
