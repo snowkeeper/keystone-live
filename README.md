@@ -357,11 +357,13 @@ Returns `this` if no **`callback`** provided.
 > __listConfig__ - {_Object_} - configuration for lists  
 >> only   -   {_String_}  -  comma seperated Lists allowed (takes first precedence)  
 >> exclude   -   {_String_}   -  comma seperated Lists not to allow   
+
 > __lists__ - {_Object_} - individual List config   
 >> Each Key should be a valid List with an object consisting of:  
 >>> _route-overrides_   -   {_...Object|Function_}  -  just like __routes__ option  
 >>> auth   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths
 >>> middleware   -   {_...Array|Function_}   - global middleware stack for all paths       
+
 > __routes__ - {_Object_} - override the default routes  
 >> Each route can be a Function or an object consisting of:     
 >>> route   -   {_Function_}  -  route to run
