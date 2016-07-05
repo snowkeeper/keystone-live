@@ -135,10 +135,10 @@ keystone.set('routes', function(app) {
 **`options`** is an object that may contain: 
 > __exclude__ - {_String_}  - Fields to exclude from requests (takes precedence over include)    
 > __include__ - {_String_}  - Fields to include in requests   
-> __auth__ -   {_Function_} - require user   
-> __middleware__ - {_...Array|Function_} -  Array of middleware routes  
-> __route__ - {_String_}  - Root path without pre and trailing slash  
-> __paths__  - {_Object_}  rename the default action uri path
+> __auth__ -   {_...Boolean|Function_} - Global auth.  `true` sets check of `req.user`   
+> __middleware__ - {_...Array|Function_} -  Global middleware routes  
+> __route__ - {_String_}  - Root path without pre and trailing slash  eg: api
+> __paths__  - {_Object_}  rename the default action uri paths
 >> create  - {_String_}  
 >> get  - {_String_}  
 >> list  - {_String_}  
@@ -153,7 +153,7 @@ keystone.set('routes', function(app) {
 >> remove  -   {_...Object|Function_}   
 >> update   -   {_...Object|Function_}   
 >> updateField   -   {_...Object|Function_}   
->> *custom*   -   {_...Object|Function_} - add your own routes  
+>> *additionalCustomRoute*   -   {_...Object|Function_} - add your own routes  
 >>  
 >> __Each route can be a single route function or an object that contains:__  
 >>> route  -  {_Function_}  -  your route function   
@@ -167,32 +167,40 @@ keystone.set('routes', function(app) {
 	var opts = {
 		route: 'api2',
 		exclude: '_id,__v',
-		auth: function requireUser(req, res, next) {
-			if (!req.user) {
-				return res.apiError('not authorized', 'Please login to use the service', null, 401);
-			} else {
-				next();
-			}
-		},
+		auth: false,
 		paths: {
 			remove: 'delete'
 		},
+		excludeRoutes: 'create, remove',
 		routes: {
-			get: function(list) {
-				return function(req, res) {
-					console.log('custom get');
-					list.model.findById(req.params.id).exec(function(err, item) {
-					
-						if (err) return res.apiError('database error', err);
-						if (!item) return res.apiError('not found');
+			get: {
+				auth: false,
+				middleware: [],
+				route: function(list) {
+					return function(req, res) {
+						console.log('custom get');
+						list.model.findById(req.params.id).exec(function(err, item) {
 						
-						var data2 = {}
-						data2[list.path] = item;
-					
-						res.apiResponse(data2);
+							if (err) return res.apiError('database error', err);
+							if (!item) return res.apiError('not found');
+							
+							var data2 = {}
+							data2[list.path] = item;
 						
-					});
-				}
+							res.apiResponse(data2);
+							
+						});
+					}
+				},
+			},
+			create: {
+				auth: function requireUser(req, res, next) {
+					if (!req.user) {
+						return res.apiError('not authorized', 'Please login to use the service', null, 401);
+					} else {
+						next();
+					}
+				},
 			},
 			yourCustomFunction: function(list) {
 				return function(req, res) {

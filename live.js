@@ -163,11 +163,15 @@ Live.prototype.apiRoutes = function(list, options) {
 				
 				apiRoutes[method] = routeConfig(list);	
 			
-			} else if(_.isObject(routeConfig) && _.isFunction(routeConfig.route)) {
+			} else if(_.isObject(routeConfig)) {
 				
 				routeOptions.middleware[method] = []
 				setMiddleware(routeConfig, routeOptions.middleware[method]);
-				apiRoutes[method] = routeConfig.route(list);		
+				if(_.isFunction(routeConfig.route)) {
+					apiRoutes[method] = routeConfig.route(list);
+				} else {
+					apiRoutes[method] = fn(list);
+				}		
 			
 			} else {
 				
