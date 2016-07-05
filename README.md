@@ -30,7 +30,7 @@ keystone.set('routes', function(app) {
 	    create: 'new'
 	  }
     }
-    live.
+    Live.
 	  apiRoutes('Post').
 	  apiRoutes('Gallery',opts);
 });
