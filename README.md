@@ -133,7 +133,7 @@ keystone.set('routes', function(app) {
 });
 ```
 **`options`** is an object that may contain: 
-> __excludeRoutes__ - {_String_}  - Comma seperated string of default Routes to exclude.
+> __excludeRoutes__ - {_String_}  - Comma seperated string of default Routes to exclude.  
 > __exclude__ - {_String_}  - Comma seperated string of Fields to exclude from requests (takes precedence over include)    
 > __include__ - {_String_}  - Comma seperated string of Fields to include in requests   
 > __auth__ -   {_...Boolean|Function_} - Global auth.  `true` sets check of `req.user`   
