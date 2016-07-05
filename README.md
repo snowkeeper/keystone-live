@@ -359,24 +359,23 @@ Returns `this` if no **`callback`** provided.
 >> exclude   -   {_String_}   -  comma seperated Lists not to allow   
 
 > __lists__ - {_Object_} - individual List config   
->> Each Key should be a valid List with an object consisting of:  
+>> __KEY__  -  {_Object_}  -  Each Key should be a valid List with an object consisting of:  
 >>> _route-overrides_   -   {_...Object|Function_}  -  just like __routes__ option  
->>> auth   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths
->>> middleware   -   {_...Array|Function_}   - global middleware stack for all paths       
+>>> __auth__   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths  
+>>> __middleware__   -   {_...Array|Function_}   - global middleware stack for all paths       
 
 > __routes__ - {_Object_} - override the default routes  
+>> __create__   -   {_...Object|Function_}   
+>> __get__   -   {_...Object|Function_}   returns `Object`  
+>> __find__   -   {_...Object|Function_} *alias of*  **list**   
+>> __list__   -   {_...Object|Function_}  returns `Array` of `Objects`   
+>> __remove__   -   {_...Object|Function_}   
+>> __update__   -   {_...Object|Function_}   
+>> __updateField__   -   {_...Object|Function_}   
 >> Each route can be a Function or an object consisting of:     
->>> route   -   {_Function_}  -  route to run  
->>> auth   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth   
->>> middleware   -   {_...Array|Function_}   -  middleware stack    
-
->> create   -   {_...Object|Function_}   
->> get   -   {_...Object|Function_}   returns `Object`  
->> find   -   {_...Object|Function_} *alias of*  **list**   
->> list   -   {_...Object|Function_}  returns `Array` of `Objects`   
->> remove   -   {_...Object|Function_}   
->> update   -   {_...Object|Function_}   
->> updateField   -   {_...Object|Function_}   
+>>> __route__   -   {_Function_}  -  route to run  
+>>> __auth__   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth   
+>>> __middleware__   -   {_...Array|Function_}   -  middleware stack   
 
 ```javascript
 	var opts = {
