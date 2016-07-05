@@ -352,8 +352,6 @@ Returns `this` if no **`callback`** provided.
 > __exclude__ - {_String_}  - Comma seperated Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
 > __auth__ -   {_Function_} - require user   
-> __find__ - {_Object_} - `model.find(options.find)` all except `create`  
-> __query__ - {_Object_} - alias of find   
 > __listConfig__ - {_Object_} - configuration for lists  
 >> __only__   -   {_String_}  -  comma seperated string of Lists allowed (takes first precedence)  
 >> __exclude__   -   {_String_}   -  comma seperated string of Lists not to allow   
