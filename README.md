@@ -356,9 +356,9 @@ Returns `this` if no **`callback`** provided.
 > __query__ - {_Object_} - alias of find  
 > __routes__ - {_Object_} - override the default routes  
 >> create   -   {_Function_}   
->> get   -   {_Function_}   returns `Object`
+>> get   -   {_Function_}   returns `Object`  
 >> find   -   {_Function_} *alias of*  **list**   
->> list   -   {_Function_}  returns `Array` of `Objects` 
+>> list   -   {_Function_}  returns `Array` of `Objects`   
 >> remove   -   {_Function_}   
 >> update   -   {_Function_}   
 >> updateField   -   {_Function_}   

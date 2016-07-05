@@ -428,19 +428,25 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	/* auth middleware */
 	/** 
-	 * check for custom auth function
-	 * opts.auth = function(socket, next) { next();}
+	 * check for global auth function
+	 * opts.auth = true || function(socket, next) { next();}
 	 * should add user credentials to socket.handshake.session.user
 	 * must call next to proceed
 	 * call next with argument to error out
+	 * set auth empty or false to skip global auth
 	 * */
+	
+	var authFunction = function(socket, next) {
+		next();
+	}
+	
 	if(_.isFunction(opts.auth)) {
 		// user function
-		var authFunction = opts.auth;
+		authFunction = opts.auth;
 	
-	} else {
+	} else if(opts.auth) {
 		// check for a session and see if the user can
-		var authFunction = function(socket, next) {
+		authFunction = function(socket, next) {
 			if (socket.handshake.session) {
 				debug('live socket session', socket.handshake.session)
 				var session = socket.handshake.session;
@@ -471,8 +477,18 @@ Live.prototype.apiSockets = function(opts, callback) {
 		} // end auth function
 	} // end auth seletion
 	
-	/* add auth middleware */
+	/* add global auth*/
 	listNamespace.use(function(socket, next){
+		
+		/* unlike http routes, we can not let sockets handle the middleware for each path
+		 * so we inject a custom middleware stack in each receiver later
+		 * 
+		 * For now we set a global auth
+		 * auth is always first and is global
+		 * 
+		 * */
+		
+		// run global auth
 		if(!keystone.get('auth')) {
 			next();
 		} else {
@@ -608,7 +624,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 					var p = [];
 					var keys = _.keys(keystone.lists);
 					
-					async.each(keys,function(key,next) {
+					async.each(keys,function(key, next) {
 							
 						getList(keystone.lists[key], list || {}, function(obj){
 							p.push(obj);
