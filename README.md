@@ -355,8 +355,8 @@ Returns `this` if no **`callback`** provided.
 > __find__ - {_Object_} - `model.find(options.find)` all except `create`  
 > __query__ - {_Object_} - alias of find   
 > __listConfig__ - {_Object_} - configuration for lists  
->> only   -   {_String_}  -  comma seperated Lists allowed (takes first precedence)  
->> exclude   -   {_String_}   -  comma seperated Lists not to allow   
+>> __only__   -   {_String_}  -  comma seperated Lists allowed (takes first precedence)  
+>> __exclude__   -   {_String_}   -  comma seperated Lists not to allow   
 
 > __lists__ - {_Object_} - individual List config   
 >> __KEY__  -  {_Object_}  -  Each Key should be a valid List with an object consisting of:  
