@@ -366,9 +366,10 @@ Returns `this` if no **`callback`** provided.
 
 > __routes__ - {_Object_} - override the default routes  
 >> Each route can be a Function or an object consisting of:     
->>> route   -   {_Function_}  -  route to run
->>> auth   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth  
->>> middleware   -   {_...Array|Function_}   -  middleware stack  
+>>> route   -   {_Function_}  -  route to run  
+>>> auth   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth   
+>>> middleware   -   {_...Array|Function_}   -  middleware stack    
+
 >> create   -   {_...Object|Function_}   
 >> get   -   {_...Object|Function_}   returns `Object`  
 >> find   -   {_...Object|Function_} *alias of*  **list**   
