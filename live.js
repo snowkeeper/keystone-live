@@ -212,6 +212,7 @@ Live.prototype.apiRoutes = function(list, options) {
 				api[theRoute] = options.route(list);
 				addRoute('get', '/' + route +'/' + list.path + '/' + theRoute, api[theRoute], middle, mid);
 				addRoute('get', '/' + route +'/' + list.path + '/:id/' + theRoute, api[theRoute], middle, mid);
+				addRoute('get', '/' + route +'/' + list.path + '/' + theRoute + '/:id', api[theRoute], middle, mid);
 			
 			}
 		});

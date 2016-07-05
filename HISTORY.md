@@ -2,7 +2,8 @@
 
 ## v0.2.1 / 2016-07-05  
   
-* added; `skip` string option to exclude any of the default routes.  
+* added; `skip` string option to exclude any of the default routes. 
+* added; Additional express route to custom routes. `**/route`, `**/:id/route`, `**/route/:id`    
 * changed; `routes` properties can now be a route __Function__ or an __Object__.  
 * added; Each route can now specify its own auth and middleware stack.    
   
