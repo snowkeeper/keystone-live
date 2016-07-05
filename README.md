@@ -172,7 +172,7 @@ keystone.set('routes', function(app) {
 		paths: {
 			remove: 'delete'
 		},
-		excludeRoutes: 'create, remove',
+		skip: 'create, remove',
 		routes: {
 			get: {
 				auth: false,
