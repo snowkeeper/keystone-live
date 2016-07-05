@@ -67,14 +67,11 @@ Live.prototype.router = function(path, callback) {
 	
 }
 
-
 /**
  * list api routes
  * 
  * */
 Live.prototype.apiRoutes = function(list, options) {
-	
-	checkForKeystone();
 	
 	var app = keystone.app;
 	
@@ -104,7 +101,9 @@ Live.prototype.apiRoutes = function(list, options) {
 	} else {
 		// loop through keystone.lists
 		_.each(keystone.lists,function(alist, key) {
-			if(!_.isObject(alist.schema.methods.api))add(alist);
+			if(!_.isObject(alist.schema.methods.api)) {
+				add(alist);
+			}
 			
 		},this);
 		
@@ -117,15 +116,27 @@ Live.prototype.apiRoutes = function(list, options) {
 			list.schema.methods.api = {};
 		}
 		
-		if(!_.isObject(options.routes)) options.routes = {};
+		if(!_.isObject(options.routes)) {
+			options.routes = {};
+		}
 		
 		list.apiOptions = options;
 		
 		var apiRoutes = {};
-		_.each(restApi,function(fn,method) {
+		
+		var routeOptions = {
+			middleware: {},
+		};
+		
+		var excludeRoutes = options.skip ? options.skip.split(',') : [];
+		
+		_.each(restApi, function(fn, method) {
 			/* *
 			 * create the api route handlers 
 			 * *
+			 * 
+			 * exclude routes in options.routeExcludes
+			 * 
 			 * use route overrides from options.routes	
 			 * options.routes.get = function(list) { 
 			 * 		return function(req, res) { 
@@ -141,10 +152,27 @@ Live.prototype.apiRoutes = function(list, options) {
 			 * 		} 
 			 * 	}
 			 * */
-			if(_.isFunction(options.routes[method])) {
-				apiRoutes[method] = options.routes[method](list);	
+			
+			var routeConfig = options.routes[method];
+			
+			if(excludeRoutes.indexOf(method)) {
+				
+				apiRoutes[method] = false;
+			
+			} else if (_.isFunction(routeConfig)) {
+				
+				apiRoutes[method] = routeConfig(list);	
+			
+			} else if(_.isObject(routeConfig) && _.isFunction(routeConfig.route)) {
+				
+				routeOptions.middleware[method] = []
+				setMiddleware(routeConfig, routeOptions.middleware[method]);
+				apiRoutes[method] = routeConfig.route(list);		
+			
 			} else {
+				
 				apiRoutes[method] = fn(list);	
+			
 			}
 			
 		});
@@ -152,45 +180,73 @@ Live.prototype.apiRoutes = function(list, options) {
 		/* attach methods to the list */
 		var api = list.schema.methods.api = apiRoutes;
 
-		// middleware
+		// global middleware
 		var middle = [keystone.middleware.api];
-		if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
-			if(_.isArray(options.middleware)) {
-				 var middle = _.union(middle, options.middleware);
-			} else {
-				middle.push(options.middleware);
-			}
-		} 
-		// auth
-		if(keystone.get('auth')) {
-			if(_.isFunction(options.auth)) {
-				 middle.push(options.auth);
-			} else {
-				middle.push(requireUser);
-			}
-		}
+		
+		setMiddleware(options, middle);
 		
 		// custom routes
 		var defaultRoutes = ['list','get','create','remove','update','updateField'];
-		_.each(options.routes, function(v,k) {
-			if(!_.includes(defaultRoutes,k)) {
-				api[k] = v(list);
-				app.get('/' + route +'/' + list.path + '/' + k, middle, api[k]);
-				app.get('/' + route +'/' + list.path + '/:id/' + k , middle, api[k]);
+		_.each(options.routes, function(options, theRoute) {
+			var mid = [];
+			if(_.isFunction(options)) {
+				
+				options = {
+					route: options
+				}	
+			
+			} else if(_.isObject(options) && _.isFunction(options.route)) {
+				
+				setMiddleware(options, mid);		
+			
+			} else {
+				return;
+			}
+			
+			if(!_.includes(defaultRoutes, theRoute)) {
+				
+				api[theRoute] = options.route(list);
+				addRoute('get', '/' + route +'/' + list.path + '/' + theRoute, api[theRoute], middle, mid);
+				addRoute('get', '/' + route +'/' + list.path + '/:id/' + theRoute, api[theRoute], middle, mid);
+			
 			}
 		});
 		
 		// add routes to express
-		app.get('/' + route +'/' + list.path + '/' + listPath, middle, api.list);
-		app.all('/' + route +'/' + list.path + '/' + createPath, middle, api.create);
-		app.get('/' + route +'/' + list.path + '/:id', middle, api.get);
-		app.all('/' + route +'/' + list.path + '/:id/' + updatePath, middle, api.update);
-		app.all('/' + route +'/' + list.path + '/:id/' + updateFieldPath, middle, api.updateField);
-		app.get('/' + route +'/' + list.path + '/:id/' + removePath, middle, api.remove);
+		if(api.list) {
+			addRoute('get', '/' + route +'/' + list.path + '/' + listPath, api.list, middle, routeOptions.middleware.list);
+		}
+		if(api.create) {
+			addRoute('all', '/' + route +'/' + list.path + '/' + createPath, api.create, middle, routeOptions.middleware.create);
+		}
+		if(api['get']) {
+			addRoute('get', '/' + route +'/' + list.path + '/:id', api['get'], middle, routeOptions.middleware['get']);
+		}
+		if(api.update) {
+			addRoute('all', '/' + route +'/' + list.path + '/:id/' + updatePath, api.update, middle, routeOptions.middleware.update);
+		}
+		if(api.updateField) {
+			addRoute('all', '/' + route +'/' + list.path + '/:id/' + updateFieldPath, api.updateField, middle, routeOptions.middleware.updateField);
+		}
+		if(api.remove) {
+			addRoute('get', '/' + route +'/' + list.path + '/:id/' + removePath, api.remove, middle, routeOptions.middleware.remove);
+		}
+		if(api['get']) {
+			addRoute('get', '/' + route +'/' + list.path + '/*', api['get'], middle, routeOptions.middleware['get']);
+		}
 		
-		app.get('/' + route +'/' + list.path + '/*', middle, api.get);
 		return live;
 	}
+	
+	function addRoute(method, path, route, globalMiddleware, middleware) {
+		
+		globalMiddleware = _.isArray(globalMiddleware) ? globalMiddleware : [globalMiddleware];
+		middleware = _.isArray(middleware) ? middleware : [middleware];
+		var middle = _.union(globalMiddleware, middleware);
+		
+		app[method](path, middle, route);
+	}
+	
 	// middleware require user
 	function requireUser(req, res, next) {
 	
@@ -205,6 +261,24 @@ Live.prototype.apiRoutes = function(list, options) {
 		
 	}
 	
+	function setMiddleware(options, middle) {
+		if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
+			if(_.isArray(options.middleware)) {
+				 var middle = _.union(middle, options.middleware);
+			} else {
+				middle.push(options.middleware);
+			}
+		} 
+		
+		// auth
+		if(keystone.get('auth')) {
+			if(_.isFunction(options.auth)) {
+				 middle.push(options.auth);
+			} else {
+				middle.push(requireUser);
+			}
+		}
+	}
 	
 }
 

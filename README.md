@@ -147,13 +147,19 @@ keystone.set('routes', function(app) {
 >> updateField  - {_String_}  
 
 > __routes__ - {_Object_} override the default routes
->> create   -   {_Function_}  
->> get   -   {_Function_}   
->> list  -   {_Function_}   
->> remove  -   {_Function_}   
->> update   -   {_Function_}   
->> updateField   -   {_Function_}   
->> *custom*   -   {_Function_} - add your own routes  
+>> create   -   {_...Object|Function_}  
+>> get   -   {_...Object|Function_}   
+>> list  -   {_...Object|Function_}   
+>> remove  -   {_...Object|Function_}   
+>> update   -   {_...Object|Function_}   
+>> updateField   -   {_...Object|Function_}   
+>> *custom*   -   {_...Object|Function_} - add your own routes  
+>>  
+>> Each route can be a single route function or an object that contains:  
+>>> route  -  {_Function_}  -  your route functions  
+>>> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
+>>> middleware  -  {_...Array|Function_}  -  middleware for the route.  
+
 
 **NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.  
 
