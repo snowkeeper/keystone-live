@@ -4,7 +4,8 @@
   
 * added; `skip` string option to exclude any of the default routes.  
 * changed; `routes` properties can now be a route __Function__ or an __Object__.  
-* added; Each route can now specify its own auth and middleware stack.  
+* added; Each route can now specify its own auth and middleware stack.    
+  
 > __Each route can be a single route function or an object that contains:__  
 >> route  -  {_Function_}  -  your route function   
 >> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
