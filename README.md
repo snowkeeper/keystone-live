@@ -156,7 +156,7 @@ keystone.set('routes', function(app) {
 >> *custom*   -   {_...Object|Function_} - add your own routes  
 >>  
 >> __Each route can be a single route function or an object that contains:__  
->>> route  -  {_Function_}  -  your route functions  
+>>> route  -  {_Function_}  -  your route function   
 >>> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
 >>> middleware  -  {_...Array|Function_}  -  middleware for the route.  
 
