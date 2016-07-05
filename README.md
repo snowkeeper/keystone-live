@@ -360,7 +360,7 @@ Returns `this` if no **`callback`** provided.
 
 > __lists__ - {_Object_} - individual List config   
 >> __KEY__  -  {_Object_}  -  Each Key should be a valid List with an object consisting of:  
->>> _route-overrides_   -   {_...Object|Function_}  -  just like __routes__ option  
+>>> __*route-overrides*__   -   {_...Object|Function_}  -  just like __routes__ option  
 >>> __auth__   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths  
 >>> __middleware__   -   {_...Array|Function_}   - global middleware stack for all paths       
 
