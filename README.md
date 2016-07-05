@@ -166,8 +166,8 @@ keystone.set('routes', function(app) {
 
 ```javascript
 	var opts = {
-		route: 'api2',
-		exclude: '_id,__v',
+		route: 'api/v2',
+		exclude: '_id, __v',
 		auth: false,
 		paths: {
 			remove: 'delete'
