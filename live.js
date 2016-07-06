@@ -600,12 +600,12 @@ Live.prototype.apiSockets = function(opts, callback) {
 				}
 			}
 			
-			/* ****
+			/** ****
 			 * add live rest 
 			 * 
 			 * each method can execute a custom route
 			 * routes are added in the opts object
-			 * opts.routes.list = function(data, options, socket, callback)
+			 * opts.routes.list = function(data, req, socket, callback)
 			 * 
 			 * You can also set custom auth and middleware
 			 * opts.routes.list = { route, auth, middleware }
@@ -622,25 +622,11 @@ Live.prototype.apiSockets = function(opts, callback) {
 			
 			_.each(opts.routes, function(fn, k) {
 				if(!_.includes(defaultRoutes, k)) {
-					socket.on(k, function(data) {
-						data.list = keystone.lists[data.list];
-						fn(data, req, socket, function(err, returnData, callback) {
-							if(_.isFunction(callback)) {
-								callback(live);
-							}
-							if(returnData) {
-								// send data to any listeners
-								data.list = data.path;
-								live.emit('doc:' + socket.id,{type:k, path:data.path, received:data, data:returnData, success:true, iden: data.iden});
-							} else {
-								// fail
-								live.emit('doc:' + socket.id,{type:k, path:data.path,  success:false, error:err, iden: data.iden});
-							}
-						});
-					});
+					buildRoutes([k], opts);
 				}
 			});
 			
+						
 			/**
 			 * list listener
 			 * expects an obj with min of { list: 'ListKey' }
@@ -650,45 +636,6 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 *   skip number -  skip: 0 (default)
 			 *   find - {name:'fred'} alias query
 			 * */
-			
-			// our run routine for each request
-			function runAction(req, list, socket, callback) {
-				debug.sockets('runAction checkAuth');
-				checkAuth(req.auth, socket, function(err) {
-					if(!err) {
-						runMiddleware(list, socket, req.middleware, function(err) {
-							callback();
-						});
-					} else {
-						callback(err);
-					}
-				});
-				
-			}
-			 
-			function checkAuth(auth, socket, callback) {
-				if(_.isFunction(auth)) {
-					debug.sockets('runAction RUN AUTH');
-					auth(socket, function(err) {
-						if(err) {
-							return callback(err.name + ': ' + err.message);
-						}
-						callback();
-					});
-				} else {
-					callback();
-				}				
-			}
-			function runMiddleware(data, socket, middleware, callback) {
-				debug.sockets('runAction check for middleware');
-				if(_.isArray(middleware) && middleware.length > 0) {
-					debug.sockets('runAction RUN MIDDLEWARE');
-					async.applyEachSeries(middleware, data, socket, callback);
-				} else {
-					callback();
-				}
-			}
-		
 			socket.on('list',function(list) {
 				debug.list(list)
 				
@@ -771,9 +718,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				}
 			});
 			
-			/**
-			 * Build the rest of our routes
-			 * */
+			/** Build the rest of our routes **/
 			buildRoutes(['get','create','remove','find','update','updateField'], opts)
 			
 			function buildRoutes(routes, opts) {
@@ -882,6 +827,44 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	return callback();           
 	
+	
+	/** REQUEST ROUTINE **/
+	function runAction(req, list, socket, callback) {
+		debug.sockets('runAction checkAuth');
+		checkAuth(req.auth, socket, function(err) {
+			if(!err) {
+				runMiddleware(list, socket, req.middleware, function(err) {
+					callback();
+				});
+			} else {
+				callback(err);
+			}
+		});
+		
+	}
+	function checkAuth(auth, socket, callback) {
+		if(_.isFunction(auth)) {
+			debug.sockets('runAction RUN AUTH');
+			auth(socket, function(err) {
+				if(err) {
+					return callback(err.name + ': ' + err.message);
+				}
+				callback();
+			});
+		} else {
+			callback();
+		}				
+	}
+	function runMiddleware(data, socket, middleware, callback) {
+		debug.sockets('runAction check for middleware');
+		if(_.isArray(middleware) && middleware.length > 0) {
+			debug.sockets('runAction RUN MIDDLEWARE');
+			async.applyEachSeries(middleware, data, socket, callback);
+		} else {
+			callback();
+		}
+	}
+	/** END REQUEST ROUTINE **/
 	
 	/*
 	 * return an object with the correct route and middleware
