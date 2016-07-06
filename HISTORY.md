@@ -12,6 +12,13 @@
 >> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
 >> middleware  -  {_...Array|Function_}  -  middleware for the route.  
 
+* changed; Major imporvements to socket route handling.   
+* added; **Sockets** - Middleware additions globally, per route, and/or per List.  
+* added; **Sockets** - exclude/include Lists via `listConfig.exclude` `listConfig.only`   
+* added; **Sockets** - per List route config with **auth**, **middleware**, **routes and route exclusions**.     
+* changed; **Sockets** - enhanced route configuration for global routes and per List routes.  (backwards compatible).    
+* added; **Sockets** - enhanced auth handling per route and/or per List.  
+
 
 ## v0.2.0 / 2016-04-11  
 
