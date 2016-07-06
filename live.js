@@ -276,13 +276,6 @@ Live.prototype.apiRoutes = function(list, options) {
 	}
 	
 	function setMiddleware(options, middle) {
-		if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
-			if(_.isArray(options.middleware)) {
-				 var middle = _.union(middle, options.middleware);
-			} else {
-				middle.push(options.middleware);
-			}
-		} 
 		
 		// auth
 		if(keystone.get('auth')) {
@@ -292,6 +285,15 @@ Live.prototype.apiRoutes = function(list, options) {
 				middle.push(requireUser);
 			}
 		}
+		
+		if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
+			if(_.isArray(options.middleware)) {
+				 var middle = _.union(middle, options.middleware);
+			} else {
+				middle.push(options.middleware);
+			}
+		} 
+		
 	}
 	
 }
@@ -410,7 +412,11 @@ Live.prototype.apiSockets = function(opts, callback) {
 	
 	if(!_.isObject(opts)) opts = {};
 	if(!_.isObject(opts.routes)) opts.routes = {};
-		
+	if(_.isFunction(opts.middleware)) opts.middleware = [opts.middleware];
+	if(!_.isArray(opts.middleware)) opts.middleware = [];
+	
+	// set inclusion / exclusion
+	var excludeList = options.skip ? options.skip.split(/[\s,]+/) : [];
 	sock.serveClient(false);
 	
 	var io = this.io = sock.attach(keystone.httpServer);
@@ -624,6 +630,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			socket.on('list',function(list) {
 				debug(list)
 				var req = _.clone(list);
+				
 				if(!_.isObject(list) || !list.list ) {
 					/* no list given so grab all lists */
 					var p = [];
@@ -654,11 +661,15 @@ Live.prototype.apiSockets = function(opts, callback) {
 				/* retrieve the results */
 				function getList(getList, list, cb) {
 					
-					var fn = _.isFunction(opts.routes.list) ? opts.routes.list : restSock.list;
+					/* set route from config and run middleware */
+					debug('run all lists', opts, getList.key, 'list');
 					
+					var me = configMe(opts, getList.key, 'list');
+					
+										
 					list.list = getList;
 									
-					fn(list, socket, function(err, docs) {
+					me.route(list, socket, function(err, docs) {
 						if(docs) {
 							// send data to listeners
 							cb({path:getList.path, data:docs, success:true});
@@ -674,7 +685,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 * find listener
 			 * opts.routes.find = function(list, socket, callback)
 			 * */
-			socket.on('find',function(list) {
+			socket.on('find', function(list) {
 				
 				list.list = keystone.lists[list.list];
 				if(!list.list) {
@@ -698,7 +709,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 * get listener
 			 * opts.routes.get = function(List, docID, socket, callback)
 			 * */
-			socket.on('get',function(list) {
+			socket.on('get', function(list) {
 				
 				list.list = keystone.lists[list.list];
 				if(!list.list) {
@@ -781,7 +792,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 * remove listener
 			 * opts.routes.remove = function(List, docID, socket, callback)
 			 * */
-			socket.on('remove',function(list) {
+			socket.on('remove', function(list) {
 				
 				var getList = list.list = keystone.lists[list.list];
 				var getId = list.id;
@@ -803,11 +814,81 @@ Live.prototype.apiSockets = function(opts, callback) {
 	return callback();           
 	
 	
+	/*
+	 * return an object with the correct route and middleware
+	 * */
+	function configMe(options, list, path) {
+		// check in order, first wins
+		// options[list[path]]
+		// options[path]
+		// restSock[path]
+		
+		if(options.only) {
+			
+		}
+				
+		var me =  convertToObject(options[list[path]] || options[path] || restSock[path], options);
+				
+		return {
+			route: me.route,
+			middleware: setMiddleware(me)
+		}
+		
+		function convertToObject(checkme, opts) {
+			if(_.isFunction(checkme)) {
+				return {
+					route: checkme,
+					auth: opts.auth,
+					middleware: opts.middleware
+				}
+			} else if(_.isObject(checkme)) {
+				var me = Object.assign({
+					auth: opts.auth,
+					route: restSock[path]
+				}, checkme);
+				// append middleware to global
+				if(checkme.middleware && _.isArray(opts.middleware)) {
+					if(_.isFunction(checkme.middleware)) {
+						checkme.middleware = [checkme.middleware];
+					}
+					me.middleware = _.union(opts.middleware, checkme.middleware);
+				}
+				return me
+			} else {
+				return {
+					auth: opts.auth,
+					middleware: opts.middleware,
+					route: restSock[path]
+				}
+			}
+		}
+		
+	}
+	
 	/* 
 	 * middleware stack management for individual lists and paths
 	 * */
-	function addMiddleware(data, opts, socket) {
+	function setMiddleware(options) {
+		var mid = {
+			auth: function(socket, next) { next(); },
+			middleware: [],
+		};
 		
+		if(_.isFunction(options.auth)) {
+			mid.auth = options.auth;
+		} else if(options.auth) {
+			mid.auth = defaultAuth;
+		}
+		
+		if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
+			if(_.isArray(options.middleware)) {
+				mid.middleware = options.middleware;
+			} else {
+				mid.middleware = [options.middleware];
+			}
+		} 
+		
+		return mid;
 	}
 	
 }

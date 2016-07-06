@@ -4,7 +4,7 @@ require('dotenv').load();
 
 // Require keystone
 var keystone = require('keystone');
-var live = require('keystone-live');
+var live = require('../live');
 var _ = require('lodash');
 
 // Initialise Keystone with your project's configuration.
@@ -46,7 +46,8 @@ keystone.set('locals', {
 });
 
 // Load your project's Routes
-
+live.init(keystone);
+keystone.live = live;
 keystone.set('routes', require('./routes'));
 
 // Setup common locals for your emails. The following are required by Keystone's
@@ -99,32 +100,12 @@ keystone.set('nav', {
 keystone.start({
 	onMount: function() {
 		
-		var opts = {
-			routes: {
-				get1: function(list) {
-					return function(req, res) {
-						console.log('custom get');
-						list.model.findById(req.params.id).exec(function(err, item) {
-						
-							if (err) return res.apiError('database error', err);
-							if (!item) return res.apiError('not found');
-							
-							var data2 = {}
-							data2[list.path] = item;
-						
-							res.apiResponse(data2);
-							
-						});
-					}
-				}
-			}
-		}
-		live.apiRoutes(false, opts);
+		
 	},
 	onStart: function(){
 		var opts = {
 			routes: {
-				get1 : function(list,id,callback) {
+				get1 : function(list, id, callback) {
 					console.log('custom get');
 					if(!_.isFunction(callback)) callback = function(err,data){ 
 						console.log('callback not specified for get',err,data);
@@ -146,6 +127,6 @@ keystone.start({
 				}
 			}
 		}
-		live.live(opts).list('Post');
+		live.live(opts).listEvents('Post');
 	}
 });

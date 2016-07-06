@@ -351,16 +351,17 @@ Returns `this` if no **`callback`** provided.
 **`options`** is an object that may contain: 
 > __exclude__ - {_String_}  - Comma seperated Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
-> __auth__ -   {_Function_} - require user   
+> __auth__ -   {_...Boolean|Function_} - require user   
 > __listConfig__ - {_Object_} - configuration for lists  
 >> __only__   -   {_String_}  -  comma seperated string of Lists allowed (takes first precedence)  
 >> __exclude__   -   {_String_}   -  comma seperated string of Lists not to allow   
 
 > __lists__ - {_Object_} - individual List config   
 >> __KEY__  -  {_Object_}  -  Each Key should be a valid List with an object consisting of:  
+>>> __*exclude*__   -   {_String_}  -  comma seperated string of routes to exclude. eg 'create, update, remove, updateField'      
 >>> __*get|find|list...*__   -   {_...Object|Function_}  -  just like __routes__ option  
 >>> __auth__   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths  
->>> __middleware__   -   {_...Array|Function_}   - global middleware stack for all paths       
+>>> __middleware__   -   {_...Array|Function_}   - global middleware function stack for all paths function(socket, data, next)      
 
 > __routes__ - {_Object_} - override the default routes  
 >> __create__   -   {_...Object|Function_}   
@@ -373,7 +374,9 @@ Returns `this` if no **`callback`** provided.
 >> Each route can be a Function or an object consisting of:     
 >>> __route__   -   {_Function_}  -  route to run  
 >>> __auth__   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth   
->>> __middleware__   -   {_...Array|Function_}   -  middleware stack   
+>>> __middleware__   -   {_...Array|Function_}   -  middleware stack   - function(socket, data, next)  
+>>> __*excludeFields*__   -   {_String_}  -  comma seperated string of fields to exclude. eg '_id'   (takes precedence over include)         
+>>> __*includeFields*__   -   {_String_}  -  comma seperated string of fields to exclude. eg 'name, address, city' 
 
 ```javascript
 	var opts = {

@@ -31,6 +31,8 @@ var routes = {
 	views: importRoutes('./views')
 };
 
+
+
 // Setup Route Bindings
 exports = module.exports = function(app) {
 	
@@ -40,4 +42,25 @@ exports = module.exports = function(app) {
 	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);
 	
+	var opts = {
+		routes: {
+			get1: function(list) {
+				return function(req, res) {
+					console.log('custom get');
+					list.model.findById(req.params.id).exec(function(err, item) {
+					
+						if (err) return res.apiError('database error', err);
+						if (!item) return res.apiError('not found');
+						
+						var data2 = {}
+						data2[list.path] = item;
+					
+						res.apiResponse(data2);
+						
+					});
+				}
+			}
+		}
+	}
+	keystone.live.apiRoutes(false, opts);
 };
