@@ -13,12 +13,13 @@
 >> middleware  -  {_...Array|Function_}  -  middleware for the route.  
 >> excludeFields  -   {_String_}  -  comma seperated string of fields to exclude. `'_id, __v'`  (takes precedence over include)       
 >> includeFields  -   {_String_}  -  comma seperated string of fields to exclude. `'name, address, city'`  
+ 
 * changed; Major imporvements to socket route handling.   
 * added; **Sockets** - Middleware additions globally, per route, and/or per List.  
 * added; **Sockets** - exclude/include Lists via `listConfig.exclude` `listConfig.only`   
 * added; **Sockets** - per List route config with **auth**, **middleware**, **routes and route exclusions**.     
 * changed; **Sockets** - enhanced route configuration for global routes and per List routes.  (backwards compatible).    
-* added; **Sockets** - enhanced auth handling per route and/or per List.  
+* added; **Sockets** - enhanced auth handling per route and/or per List.   
 
 
 ## v0.2.0 / 2016-04-11  
