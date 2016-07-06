@@ -1,7 +1,8 @@
 # Keystone-Live Changelog
 
-## v0.2.1 / 2016-07-05  
+## v0.3.0 / 2016-07-05  
   
+* **breaking change**; socket routes normalized to `function(data, req, socket, callback)`   
 * added; `skip` string option to exclude any of the default routes. 
 * added; Additional express route to custom routes. `**/route`, `**/:id/route`, `**/route/:id`    
 * changed; `routes` properties can now be a route __Function__ or an __Object__.  

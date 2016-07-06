@@ -770,134 +770,114 @@ Live.prototype.apiSockets = function(opts, callback) {
 					});
 				}
 			});
-			/* *
-			 * find listener
-			 * opts.routes.find = function(list, socket, callback)
+			
+			/**
+			 * Build the rest of our routes
 			 * */
-			socket.on('find', function(list) {
-				
-				list.list = keystone.lists[list.list];
-				if(!list.list) {
-					// fail
-					live.emit('doc:' + socket.id,{type:'find', path:list.list,  success:false, error:err, iden: list.iden});
-				}
-				
-				var fn = _.isFunction(opts.routes.list) ? opts.routes.list : restSock.list;
-				
-				fn(list, socket, function(err, doc) {
-					if(doc) {
-						// send data to any listeners
-						live.emit('doc:' + socket.id,{type:'find', path:list.list.path, id:list.id, data:doc, success:true, iden: list.iden});
-					} else {
-						// fail
-						live.emit('doc:' + socket.id,{type:'find', path:list.list.path,  success:false, error:err, iden: list.iden});
-					}
+			buildRoutes(['get','create','remove','find','update','updateField'], opts)
+			
+			function buildRoutes(routes, opts) {
+			
+				routes.forEach(function(route) {
+					
+					var alias = route;
+					if(alias === 'find') alias = 'list';	
+					/* *
+					 * listener
+					 * */
+					socket.on(route, function(request) {
+						
+						/* set route from config and run middleware */
+						debug.list('run ', route);
+						
+						var list = _.clone(request);
+						
+						list.list = keystone.lists[list.list];
+						
+						if(!list.list) {
+							// fail
+							return live.emit('doc:' + socket.id, {
+								type: route, 
+								path: request.list,  
+								success: false, 
+								error: err, 
+								iden: request.iden
+							});
+						}
+						
+						if(globalOnlyRoutes && globalOnlyRoutes.indexOf(request.list) < 0) {
+							return live.emit('doc:' + socket.id, {
+								path: list.list.path, 
+								route: route,
+								success: false, 
+								error: 'Not Allowed'
+							});
+						}
+						
+						if(globalExcludeRoutes && globalExcludeRoutes.indexOf(request.list) > -1) {
+							return live.emit('doc:' + socket.id, {
+								path: list.list.path,
+								route: route, 
+								success: false, 
+								error: 'Not Allowed'
+							});
+						}
+						
+						var listConfig = opts.lists[request.list];
+						
+						if(_.isObject(listConfig)) {
+							var excludes = listConfig.exclude ? listConfig.exclude.split(/[\s,]+/) : [];
+							if(excludes.indexOf('list') > -1) {
+								return live.emit('doc:' + socket.id, {
+									path: list.list.path,
+									route: route, 
+									success: false, 
+									error: 'Not Allowed'
+								});
+							}
+						}
+						
+						var me = configMe(opts, request.list, route);
+						
+						debug.sockets('runAction for me', me);
+																				
+						runAction(me, list, socket, function(err) {
+							debug.sockets('runAction',list.list.key, err);
+							if(err) {
+								live.emit('doc:' + socket.id, {
+									path: list.list.path, 
+									route: route,
+									success: false, 
+									error: err
+								});
+							} else {
+								me.route(list, req, socket, function(err, docs) {
+									debug.list('got docs from ', list.list.key, err);
+									if(docs) {
+										// send data to listeners
+										live.emit('doc:' + socket.id, {
+											path: list.list.path, 
+											route: route,
+											data: docs, 
+											success: true
+										});
+									} else {
+										// fail
+										live.emit('doc:' + socket.id, {
+											path: list.list.path,
+											route: route, 
+											success: false, 
+											error: err
+										});
+									}
+								});
+							}
+						});
+						
+					});
 				});
-			});
-			/* *
-			 * get listener
-			 * opts.routes.get = function(List, docID, socket, callback)
-			 * */
-			socket.on('get', function(list) {
-				
-				list.list = keystone.lists[list.list];
-				if(!list.list) {
-					// fail
-					live.emit('doc:' + socket.id,{type:'get', path:list.list,  success:false, error:err, iden: list.iden});
-				}
-				var fn = _.isFunction(opts.routes.get) ? opts.routes.get : restSock.get;
-				
-				fn(list, socket, function(err, doc) {
-					if(doc) {
-						// send data to any listeners
-						live.emit('doc:' + socket.id,{type:'get', path:list.list.path, id:list.id, data:doc, success:true, iden: list.iden});
-					} else {
-						// fail
-						live.emit('doc:' + socket.id,{type:'get', path:list.list.path,  success:false, error:err, iden: list.iden});
-					}
-				});
-			});
-			/* *
-			 * create listener
-			 * opts.routes.create = function(List, data, req, socket, callback)
-			 * */
-			socket.on('create',function(list) {
-				
-				var getList = list.list = keystone.lists[list.list];
-				
-				var fn = _.isFunction(opts.routes.create) ? opts.routes.create : restSock.create;
-				
-				fn(list, req,  socket, function(err, doc) {
-					if(doc) {
-						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'created', path:getList.path, id:doc._id, data:doc, success:true, iden: list.iden});
-					} else {
-						// fail
-						live.emit('doc:' + socket.id,{type:'created', path:getList.path,  success:false, error:err, iden: list.iden});
-					}
-				});
-			});
-			/* *
-			 * update listener
-			 * opts.routes.update = function(List, docID, data, req, socket, callback)
-			 * */
-			socket.on('update',function(list) {
-				
-				var getList = list.list = keystone.lists[list.list];
-				
-				var fn = _.isFunction(opts.routes.update) ? opts.routes.update : restSock.update;
-				
-				fn(list, req,  socket, function(err, doc) {
-					if(doc) {
-						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'updated', path:getList.path, id:list.id, data:doc, success:true, iden: list.iden});
-					} else {
-						// fail
-						live.emit('doc:' + socket.id,{type:'updated', path:getList.path, success:false, error:err, iden: list.iden});
-					}
-				});
-			});
-			/* *
-			 * updateField listener
-			 * opts.routes.updateField = function(List, docID, field, value, req, socket, callback)
-			 * */
-			socket.on('updateField',function(list) {
-				
-				var getList = list.list = keystone.lists[list.list];
-
-				var fn = _.isFunction(opts.routes.updateField) ? opts.routes.updateField : restSock.updateField;
-				
-				fn(list, req,  socket, function(err, doc) {
-					if(doc) {
-						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, id:list.id, data:doc, field:list.field, value:list.value, success:true, iden: list.iden});
-					} else {
-						// fail
-						live.emit('doc:' + socket.id,{type:'updatedField', path:getList.path, success:false, error:err, iden: list.iden});
-					}
-				});
-			});
-			/* *
-			 * remove listener
-			 * opts.routes.remove = function(List, docID, socket, callback)
-			 * */
-			socket.on('remove', function(list) {
-				
-				var getList = list.list = keystone.lists[list.list];
-				var getId = list.id;
-				
-				var fn = _.isFunction(opts.routes.remove) ? opts.routes.remove : restSock.remove;
-				
-				fn(list, socket, function(err, doc) {
-					if(doc) {
-						// send data to listeners
-						live.emit('doc:' + socket.id,{type:'removed', path:getList.path, id:list.id, success:true, iden: list.iden});
-					} else {
-						// fail
-						live.emit('doc:' + socket.id,{type:'removed', path:getList.path,  success:false, error:err, iden: list.iden});
-					}
-				});
-			});
+			}
+			
 	});
 	
 	return callback();           
@@ -957,6 +937,19 @@ Live.prototype.apiSockets = function(opts, callback) {
 						checkme.middleware = [checkme.middleware];
 					}
 					me.middleware = _.union(listMiddleware, checkme.middleware);
+				}
+				/* double check auth
+				 * A list can add auth for all routes or per route
+				 * We are meant a true true here, but we just check for existence
+				 * */
+				if(checkme.auth && !_.isFunction(checkme.auth)) {
+					me.auth = defaultAuth;
+				}
+				/* double check route
+				 * just make sure for the hell of it
+				 * */
+				if(!_.isFunction(me.route)) {
+					me.route = restSock[path];
 				}
 				return me
 			} else {
