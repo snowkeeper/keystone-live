@@ -8,11 +8,11 @@
 * added; Each route can now specify its own auth and middleware stack.    
   
 > __Each route can be a single route function or an object that contains:__  
->> route  -  {_Function_}  -  your route function   
->> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
->> middleware  -  {_...Array|Function_}  -  middleware for the route.  
->> excludeFields  -   {_String_}  -  comma seperated string of fields to exclude. `'_id, __v'`  (takes precedence over include)       
->> includeFields  -   {_String_}  -  comma seperated string of fields to exclude. `'name, address, city'`  
+>> __route__  -  {_Function_}  -  your route function   
+>> __auth__  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
+>> __middleware__  -  {_...Array|Function_}  -  middleware for the route.  
+>> __excludeFields__  -   {_String_}  -  comma seperated string of fields to exclude. `'_id, __v'`  (takes precedence over include)       
+>> __includeFields__  -   {_String_}  -  comma seperated string of fields to exclude. `'name, address, city'`  
  
 * changed; Major imporvements to socket route handling.   
 * added; **Sockets** - Middleware additions globally, per route, and/or per List.  
