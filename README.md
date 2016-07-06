@@ -351,7 +351,8 @@ Returns `this` if no **`callback`** provided.
 **`options`** is an object that may contain: 
 > __exclude__ - {_String_}  - Comma seperated Fields to exclude from requests (takes precedence over include)  
 > __include__ - {_String_}  - Fields to include in requests   
-> __auth__ -   {_...Boolean|Function_} - require user   
+> __auth__ -   {_...Boolean|Function_} - require user  
+> __middleware__   -   {_...Array|Function_}   - global middleware function stack - function(socket, data, next)    
 > __listConfig__ - {_Object_} - configuration for lists  
 >> __only__   -   {_String_}  -  comma seperated string of Lists allowed (takes first precedence)  
 >> __exclude__   -   {_String_}   -  comma seperated string of Lists not to allow   
