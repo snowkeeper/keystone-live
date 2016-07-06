@@ -372,6 +372,7 @@ Returns `this` if no **`callback`** provided.
 >> __remove__   -   {_...Object|Function_}   
 >> __update__   -   {_...Object|Function_}   
 >> __updateField__   -   {_...Object|Function_}   
+>> __*customRoute*__   -   {_...Object|Function_} - create your own routes    
 >> Each route can be a Function or an object consisting of:     
 >>> __route__   -   {_Function_}  -  route to run  
 >>> __auth__   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth   
