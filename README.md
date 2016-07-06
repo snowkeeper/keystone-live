@@ -140,26 +140,26 @@ keystone.set('routes', function(app) {
 > __middleware__ - {_...Array|Function_} -  Global middleware routes  
 > __route__ - {_String_}  - Root path without pre and trailing slash  eg: api
 > __paths__  - {_Object_}  rename the default action uri paths
->> create  - {_String_}  
->> get  - {_String_}  
->> list  - {_String_}  
->> remove  - {_String_}  
->> update  - {_String_}  
->> updateField  - {_String_}  
+>> __create__  - {_String_}  
+>> __get__  - {_String_}  
+>> __list__  - {_String_}  
+>> __remove__  - {_String_}  
+>> __update__  - {_String_}  
+>> __updateField__  - {_String_}  
 
 > __routes__ - {_Object_} override the default routes
->> create   -   {_...Object|Function_}  
->> get   -   {_...Object|Function_}   
->> list  -   {_...Object|Function_}   
->> remove  -   {_...Object|Function_}   
->> update   -   {_...Object|Function_}   
->> updateField   -   {_...Object|Function_}   
->> *additionalCustomRoute*   -   {_...Object|Function_} - add your own routes  
+>> __create__   -   {_...Object|Function_}  
+>> __get__   -   {_...Object|Function_}   
+>> __list__  -   {_...Object|Function_}   
+>> __remove__  -   {_...Object|Function_}   
+>> __update__   -   {_...Object|Function_}   
+>> __updateField__   -   {_...Object|Function_}   
+>> __*additionalCustomRoute*__   -   {_...Object|Function_} - add your own routes  
 >>  
 >> __Each route can be a single route function or an object that contains:__  
->>> route  -  {_Function_}  -  your route function   
->>> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
->>> middleware  -  {_...Array|Function_}  -  middleware for the route.  
+>>> __route__  -  {_Function_}  -  your route function   
+>>> __auth__  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
+>>> __middleware__  -  {_...Array|Function_}  -  middleware for the route.  
 >>> __excludeFields__   -   {_String_}  -  comma seperated string of fields to exclude. `'_id, __v'`  (takes precedence over include)       
 >>> __includeFields__   -   {_String_}  -  comma seperated string of fields to exclude. `'name, address, city'`  
 
