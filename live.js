@@ -703,7 +703,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 						if(err) {
 							cb({path:getList.path, success:false, error:err});
 						} else {
-							me.route(list, socket, function(err, docs) {
+							me.route(list, req, socket, function(err, docs) {
 								debug.list('got docs from ALL',list.list.key, err);
 								if(docs) {
 									// send data to listeners
@@ -782,12 +782,12 @@ Live.prototype.apiSockets = function(opts, callback) {
 							}
 						}
 						
-						var me = configMe(opts, request.list, route);
+						var me = configMe(opts, request.list, alias);
 						
 						debug.sockets('runAction for me', me);
 																				
 						runAction(me, list, socket, function(err) {
-							debug.sockets('runAction',list.list.key, err);
+							debug.sockets('runAction', list.list.key, err);
 							if(err) {
 								live.emit('doc:' + socket.id, {
 									path: list.list.path, 
@@ -876,7 +876,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 		// restSock[path]
 		
 		var listConfig = options.lists[list] || {};
-		debug.sockets('consfigMe listConfig?', listConfig);
+		debug.sockets('consfigMe listConfig?', listConfig, options.routes[path]);
+		debug.sockets('consfigMe route config?', options.routes[path]);
 		
 		if(_.isArray(listConfig.middleware)) {
 			var listMiddleware = _.union(globalMiddleware, listConfig.middleware);
@@ -901,7 +902,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 		return me;
 		
 		function convertToObject(checkme, opts) {
-			//debug.sockets('configMe checkme', checkme);			
+						
 			if(_.isFunction(checkme)) {
 				// we have a function route so wrap with defaults
 				return {
@@ -936,6 +937,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				}
 				return me
 			} else {
+				
 				return {
 					auth: listAuth,
 					middleware: listMiddleware,
