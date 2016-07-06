@@ -256,90 +256,7 @@ Each registered list gets a set of routes created and attached to the schema.  Y
 ```
 /api/posts/55dbe981a0699a5f76354707/?list=Post&path=posts&emit=get&id=55dbe981a0699a5f76354707&exclude=__v&populate=0
 ```
- 
 
-**Source Code Snippet:**  
-```javascript
-// add the route without pre and trailing slash
-var route = options.route || 'api';
-
-// add the method path names
-if(!_.isObject(options.paths)) options.paths = {};
-var createPath = options.paths.create || 'create';
-var updatePath = options.paths.update || 'update';
-var updateFieldPath = options.paths.updateField || 'updateField';
-var listPath = options.paths.list || 'list';
-var removePath = options.paths.remove || 'remove';
-
-if(!_.isObject(list.schema.methods.api)) {
-	list.schema.methods.api = {};
-}	
-		
-if(!_.isObject(options.routes)) options.routes = {};
-
-var restApi = require('./lib/restful-api');
-var apiRoutes = {};
-
-_.each(restApi,function(fn,method) {
-	if(_.isFunction(options.routes[method])) {
-		apiRoutes[method] = options.routes[method](list);	
-	} else {
-		apiRoutes[method] = fn(list);	
-	}
-});
-
-/* attach methods to the list */
-var api = list.schema.methods.api = apiRoutes;
-
-// middleware
-var middle = [keystone.middleware.api];
-
-if(_.isFunction(options.middleware) || _.isArray(options.middleware)) {
-
-	if(_.isArray(options.middleware)) {
-		var middle = _.union(middle, options.middleware);
-	} else {
-		middle.push(options.middleware);
-	}
-    
-} 
-// auth
-if(keystone.get('auth')) {
-    if(_.isFunction(options.auth)) {
-		middle.push(options.auth);
-	} else {
-		middle.push(requireUser);
-	}
-}
-
-// custom routes
-var defaultRoutes = ['list','get','create','remove','update','updateField'];
-_.each(options.routes, function(v,k) {
-	if(!_.includes(defaultRoutes,k)) {
-		api[k] = v(list);
-		app.get('/' + route +'/' + list.path + '/' + k, middle, api[k]);
-		app.get('/' + route +'/' + list.path + '/:id/' + k , middle, api[k]);
-	}
-});
-
-// add routes to express
-app.all('/' + route +'/' + list.path + '/' + createPath, middle, api.create);
-app.get('/' + route +'/' + list.path + '/:id', middle, api.get)
-app.get('/' + route +'/' + list.path + '/' + listPath, middle, api.list);
-app.get('/' + route +'/' + list.path + '/:id/' + removePath, middle, api.remove);
-app.all('/' + route +'/' + list.path + '/:id/' + updatePath, middle, api.update);
-app.all('/' + route +'/' + list.path + '/:id/' + updateFieldPath, middle, api.updateField);
-
-
-// middleware require user
-function requireUser(req, res, next) {
-	if (!req.user) {
-		return res.apiError('not authorized', 'Please login to use the service', null, 401);
-	} else {
-		next();
-	}
-}
-```
 ___
 
 #### .apiSockets ( [ options ], callback )
@@ -499,6 +416,71 @@ Returns `this` if no **`callback`** provided.
 	}
 	// start live events and add emitters to Post
 	Live.apiSockets(opts).listEvents('Post');
+	
+	// alternate new configuration
+	Live.apiSockets({
+		auth: false,
+		listConfig: {
+			exclude: 'Tool, Brand',
+		},
+		middleware: function(data, socket, next) {
+			debug('should run 1st for everyone' );
+			data.test = 'Hello Peg!';
+			next();
+		},
+		routes: {
+			create: {
+				auth: true,
+			}, 
+			update: {
+				auth: true,
+			},
+			updateField: {
+				auth: true,
+			},
+			remove: {
+				auth: true,
+			},
+		},
+		lists: {
+			'RomBox': {
+				// exclude: 'create',
+				middleware: [function(data, socket, next) {
+					debug('run middleware', data.test, socket.handshake.session);
+					data.test = 'Hello Al!';
+					next();
+				}, function(data, socket, next) {
+					debug('should run 3rd', data.test);
+					next();
+				}],
+			},
+			'Spec': {
+				auth: false,
+				// exclude: 'create',
+				middleware: [function(data, socket, next) {
+					debug('run middleware', data.test, socket.handshake.session);
+					data.test = 'Hello Al!';
+					next();
+				}, function(data, socket, next) {
+					debug('should run 3rd', data.test);
+					next();
+				}],
+				create: {
+					auth: false,
+				}, 
+				update: {
+					auth: false,
+				},
+				updateField: {
+					auth: false,
+				},
+				remove: {
+					auth: false,
+				},
+				
+			}
+		}
+	});
 ```
 
 **Modifiers:** each request can have relevant modifiers added to filter the results.   
