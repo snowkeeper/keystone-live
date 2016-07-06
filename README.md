@@ -375,7 +375,7 @@ Returns `this` if no **`callback`** provided.
 >>> __route__   -   {_Function_}  -  route to run  
 >>> __auth__   -   {_...Boolean|Function_}   -  auth funtion or `true` for default auth   
 >>> __middleware__   -   {_...Array|Function_}   -  middleware stack   - function(socket, data, next)  
->>> __excludeFields__   -   {_String_}  -  comma seperated string of fields to exclude. eg '_id'   (takes precedence over include)         
+>>> __excludeFields__   -   {_String_}  -  comma seperated string of fields to exclude. eg '\_id'   (takes precedence over include)       
 >>> __includeFields__   -   {_String_}  -  comma seperated string of fields to exclude. eg 'name, address, city' 
 
 ```javascript
