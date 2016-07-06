@@ -260,9 +260,11 @@ Live.prototype.apiRoutes = function(list, options) {
 		if(api.remove) {
 			addRoute('get', route +'/' + PATH + '/:id/' + removePath, api.remove, middle, routeOptions.middleware.remove);
 		}
-		if(api['get']) {
-			addRoute('get', route +'/' + PATH + '/*', api['get'], middle, routeOptions.middleware['get']);
-		}
+		
+		app.get(route +'/' + PATH + '/*', middle, function(req, res){
+			res.apiError('Bad Request', 'The path you requested does not exist', null, 200);
+		});
+	
 		
 		return live;
 	}
@@ -561,8 +563,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 					
 					success: event.res.success,
 					error: event.res.error,
-					data: event.res.data,
 					request: event.req,
+					data: event.res.data,
 					result: event.res,
 					to: 'emit',
 				}	

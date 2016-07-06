@@ -362,7 +362,7 @@ Returns `this` if no **`callback`** provided.
 > __lists__ - {_Object_} - individual List config   
 >> __KEY__  -  {_Object_}  -  Each Key should be a valid List with an object consisting of:  
 >>> __exclude__   -   {_String_}  -  comma seperated string of routes to exclude. `'create, update, remove, updateField'`      
->>> __*get|find|list...*__   -   {_...Object|Function_}  -  just like __routes__ option  
+>>> __*get|find|list...*__   -   {_...Object|Function_}  -  all of the __routes__  
 >>> __auth__   -   {_...Boolean|Function_}   -  global auth funtion or `true` for default auth for all paths  
 >>> __middleware__   -   {_...Array|Function_}   - global middleware function stack for all paths `function(socket, data, next)`      
 
