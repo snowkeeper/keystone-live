@@ -11,7 +11,8 @@
 >> route  -  {_Function_}  -  your route function   
 >> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
 >> middleware  -  {_...Array|Function_}  -  middleware for the route.  
-
+>> excludeFields  -   {_String_}  -  comma seperated string of fields to exclude. `'_id, __v'`  (takes precedence over include)       
+>> includeFields  -   {_String_}  -  comma seperated string of fields to exclude. `'name, address, city'`  
 * changed; Major imporvements to socket route handling.   
 * added; **Sockets** - Middleware additions globally, per route, and/or per List.  
 * added; **Sockets** - exclude/include Lists via `listConfig.exclude` `listConfig.only`   

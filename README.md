@@ -160,6 +160,8 @@ keystone.set('routes', function(app) {
 >>> route  -  {_Function_}  -  your route function   
 >>> auth  -  {_...Boolean|Function_} - auth for the route.  use `true` for the built in `req.user` check.  
 >>> middleware  -  {_...Array|Function_}  -  middleware for the route.  
+>>> __excludeFields__   -   {_String_}  -  comma seperated string of fields to exclude. `'_id, __v'`  (takes precedence over include)       
+>>> __includeFields__   -   {_String_}  -  comma seperated string of fields to exclude. `'name, address, city'`  
 
 
 **NOTE:** `include` and `exclude` can be set for each list individually, before applying to all other lists with `Live.apiRoute(null, options)`.  `exclude` takes precedent over `include` and only one is used per request.  You can override the global setting per request.  
