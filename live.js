@@ -591,13 +591,13 @@ Live.prototype.apiSockets = function(opts, callback) {
 			function docEventFunction(event) { 
 				live.emit('log:doc', event);
 				// emit to requesting user
-				debug.sockets('sending doc',event.iden)
+				debug.sockets('sending doc',event)
 				socket.emit('doc', event);
 				socket.emit('doc:' + event.type, event);		
 				/* send the users change event */
 				var cmpUpdate = ['removed', 'updated', 'created', 'saved'];
-				if((_.contains(cmpUpdate, event.type) || event.iden) && event.success === true) {
-					debug.sockets('sending doc to iden', event.iden)
+				if((_.contains(cmpUpdate, event.type) || event.req.iden) && event.success === true) {
+					debug.sockets('sending doc to iden', event.req.iden)
 					changeEvent(event, socket); // bottom page
 				}
 			}
@@ -675,7 +675,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				function getList(getList, list, cb) {
 					
 					/* set route from config and run middleware */
-					debug.list('run all lists', getList.key, 'list');
+					debug.list('run list', getList.key);
 					
 					if(globalOnlyRoutes && globalOnlyRoutes.indexOf(getList.key) < 0) {
 						return cb({path:getList.path, success:false, error:'Not Allowed'});
@@ -699,6 +699,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 					debug.sockets('runAction for me', me);
 													
 					list.list = getList;
+					// add opts
+					list.list.apiOptions = opts;
 					
 					runAction(me, list, socket, function(err) {
 						
@@ -706,7 +708,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 							cb({path:getList.path, success:false, error:err});
 						} else {
 							me.route(list, req, socket, function(err, docs) {
-								debug.list('got docs from ALL',list.list.key, err);
+								debug.list('got docs from list',list.list.key, err);
 								if(docs) {
 									// send data to listeners
 									cb({path:getList.path, data:docs, success:true});
@@ -733,7 +735,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 					 * listener
 					 * */
 					socket.on(route, function(request) {
-						
+											
 						/* set route from config and run middleware */
 						debug.list('run ', route);
 						
@@ -741,23 +743,28 @@ Live.prototype.apiSockets = function(opts, callback) {
 						
 						list.list = keystone.lists[list.list];
 						
+						
 						if(!list.list) {
 							// fail
 							return live.emit('doc:' + socket.id, {
 								type: route, 
 								path: request.list,  
 								success: false, 
-								error: err, 
-								iden: request.iden
+								error: 'No List provided', 
+								iden: request.iden,
+								req: request
 							});
 						}
+						// add opts
+						list.list.apiOptions = opts;
 						
 						if(globalOnlyRoutes && globalOnlyRoutes.indexOf(request.list) < 0) {
 							return live.emit('doc:' + socket.id, {
 								path: list.list.path, 
 								route: route,
 								success: false, 
-								error: 'Not Allowed'
+								error: 'Not Allowed',
+								req: request
 							});
 						}
 						
@@ -766,7 +773,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 								path: list.list.path,
 								route: route, 
 								success: false, 
-								error: 'Not Allowed'
+								error: 'Not Allowed',
+								req: request
 							});
 						}
 						
@@ -779,7 +787,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 									path: list.list.path,
 									route: route, 
 									success: false, 
-									error: 'Not Allowed'
+									error: 'Not Allowed',
+									req: request
 								});
 							}
 						}
@@ -795,7 +804,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 									path: list.list.path, 
 									route: route,
 									success: false, 
-									error: err
+									error: err,
+									req: request
 								});
 							} else {
 								me.route(list, req, socket, function(err, docs) {
@@ -806,7 +816,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 											path: list.list.path, 
 											route: route,
 											data: docs, 
-											success: true
+											success: true,
+											req: request
 										});
 									} else {
 										// fail
@@ -814,7 +825,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 											path: list.list.path,
 											route: route, 
 											success: false, 
-											error: err
+											error: err,
+											req: request
 										});
 									}
 								});
@@ -1020,7 +1032,12 @@ function changeEvent(event, emitter) {
 	 * listNamespace.to for everyone in a room  ( io.of('/lists').to )
 	 * socket.to for everyone except the current socket
 	 * */
-	
+	// unique identifier sent by user - doc:iden
+	if(event.req && event.req.iden) {
+		emitter.to(event.req.iden).emit('doc' , event);
+		emitter.emit(event.req.iden , event);
+		emitter.to(event.req.iden).emit('doc:' + event.type , event);
+	}
 	// unique identifier sent by user - doc:iden
 	if(event.iden) {
 		emitter.to(event.iden).emit('doc' , event);
