@@ -8,14 +8,14 @@
 
 ```
 this.io.emit('find', Object.assign({ 
-			list: 'Posts',
-      limit: 20,
-			skip: 0,
-      find: [
-        { $text : { $search : 'pink' } }, 
+	list: 'Posts',
+    limit: 20,
+	skip: 0,
+    find: [
+		{ $text : { $search : 'pink' } }, 
         { score : { $meta: "textScore" } }
-      ],
-			iden: this.trap(this.io, talk)
+    ],
+	iden: this.trap(this.io, talk)
 }, additionalSearchValues));
     
 ```
