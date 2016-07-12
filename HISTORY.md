@@ -3,6 +3,22 @@
 ## v0.3.2 / 2016-07-08
 
 * updated; stock api routes now respect select. `select: '_id, name',`
+* fixed; send result to `iden` on error.  Previously only on success
+* updated; Improved. `list` & `find` routes now accept an array of objects to be applied in order. `model.find.apply(model, find)`   
+
+```
+this.io.emit('find', Object.assign({ 
+			list: 'Posts',
+      limit: 20,
+			skip: 0,
+      find: [
+        { $text : { $search : 'pink' } }, 
+        { score : { $meta: "textScore" } }
+      ],
+			iden: this.trap(this.io, talk)
+}, additionalSearchValues));
+    
+```
 
 ## v0.3.1 / 2016-07-05  
   

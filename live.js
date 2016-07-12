@@ -571,7 +571,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 				//debug.sockets('sending list', event.req)			
 				if(event.req.iden) {
 					debug.sockets('sending list to iden',event.req.iden)
-					socket.emit(event.req.iden , send);	
+					socket.emit(event.req.iden , send);
+					//listNamespace.to(socket.id)socket.emit(event.req.iden , send);	
 				}
 				socket.emit('list', send);
 			}
@@ -596,7 +597,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				socket.emit('doc:' + event.type, event);		
 				/* send the users change event */
 				var cmpUpdate = ['removed', 'updated', 'created', 'saved'];
-				if((_.contains(cmpUpdate, event.type) || event.req.iden) && event.success === true) {
+				if((_.contains(cmpUpdate, event.type) || event.req.iden)) {
 					debug.sockets('sending doc to iden', event.req.iden)
 					changeEvent(event, socket); // bottom page
 				}
