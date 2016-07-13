@@ -2,9 +2,11 @@
 
 ## v0.3.2 / 2016-07-08
 
-* updated; stock api routes now respect select. `select: '_id, name',`
-* fixed; send result to `iden` on error.  Previously only on success
-* updated; Improved. `list` & `find` routes now accept an array of objects to be applied in order. `model.find.apply(model, find)`   
+* updated; stock api routes now respect select. `select: '_id, name',`  
+* fixed; send result to `iden` on error.  Previously only on success   
+* updated; apiRoutes now includes a **find** route that is an alias to **list**  
+* improved; Error message handling.  
+* updated; Improved. `list` & `find` routes now accept an array of objects to be applied in order. `model.find.apply(model, find)`    
 
 ```
 this.io.emit('find', Object.assign({ 

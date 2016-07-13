@@ -214,7 +214,7 @@ Live.prototype.apiRoutes = function(list, options) {
 		setMiddleware(options, middle);
 		
 		// custom routes
-		var defaultRoutes = ['list','get','create','remove','update','updateField'];
+		var defaultRoutes = ['list', 'find', 'get','create','remove','update','updateField'];
 		_.each(options.routes, function(options, theRoute) {
 			var mid = [];
 			if(_.isFunction(options)) {
@@ -243,6 +243,9 @@ Live.prototype.apiRoutes = function(list, options) {
 		
 		// add routes to express
 		if(api.list) {
+			addRoute('get', route +'/' + PATH + '/' + listPath, api.list, middle, routeOptions.middleware.list);
+		}
+		if(api.find) {
 			addRoute('get', route +'/' + PATH + '/' + listPath, api.list, middle, routeOptions.middleware.list);
 		}
 		if(api.create) {
@@ -704,7 +707,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 					list.list.apiOptions = opts;
 					
 					runAction(me, list, socket, function(err) {
-						
+						debug.sockets('runAction callback for ' + list.list.key, 'Error: ' + err);
 						if(err) {
 							cb({path:getList.path, success:false, error:err});
 						} else {
@@ -715,7 +718,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 									cb({path:getList.path, data:docs, success:true});
 								} else {
 									// fail
-									cb({path:getList.path, success:false, error:err});
+									cb({path:getList.path, success:false, error:err.message});
 								}
 							});
 						}
@@ -799,13 +802,13 @@ Live.prototype.apiSockets = function(opts, callback) {
 						debug.sockets('runAction for me', me);
 																				
 						runAction(me, list, socket, function(err) {
-							debug.sockets('runAction', list.list.key, err);
+							debug.sockets('runAction callback for ' + list.list.key, 'Error: ' + err);
 							if(err) {
 								live.emit('doc:' + socket.id, {
 									path: list.list.path, 
 									route: route,
 									success: false, 
-									error: err,
+									error: err.message,
 									req: request
 								});
 							} else {
@@ -826,7 +829,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 											path: list.list.path,
 											route: route, 
 											success: false, 
-											error: err,
+											error: err.message,
 											req: request
 										});
 									}
