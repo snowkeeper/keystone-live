@@ -645,7 +645,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 			 *   find - {name:'fred'} alias query
 			 * */
 			socket.on('list',function(list) {
-				debug.list(list)
+				debug.sockets(list)
 				
 				var req = _.clone(list);
 				
@@ -663,7 +663,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 						
 					},function(err) {
 						// send all lists
-						debug.list('got data... send to client');
+						debug.sockets('got data... send to client');
 						live.emit('list:' + socket.id, {req: req, res: { data: p } });
 					});
 					
@@ -681,7 +681,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				function getList(getList, list, cb) {
 					
 					/* set route from config and run middleware */
-					debug.list('run list', getList.key);
+					debug.sockets('run list', getList.key);
 					
 					if(globalOnlyRoutes && globalOnlyRoutes.indexOf(getList.key) < 0) {
 						return cb({path:getList.path, success:false, error:'Not Allowed'});
@@ -714,7 +714,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 							cb({path:getList.path, success:false, error:err});
 						} else {
 							me.route(list, req, socket, function(err, docs) {
-								debug.list('got docs from list',list.list.key, err);
+								debug.sockets('got docs from list',list.list.key, err);
 								if(docs) {
 									// send data to listeners
 									cb({path:getList.path, data:docs, success:true});
@@ -743,7 +743,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 					socket.on(route, function(request) {
 											
 						/* set route from config and run middleware */
-						debug.list('run ', route);
+						debug.sockets('run ', route);
 						
 						var list = _.clone(request);
 						
@@ -815,7 +815,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 								});
 							} else {
 								me.route(list, req, socket, function(err, docs) {
-									debug.list('got docs from ', list.list.key, err);
+									debug.sockets('got docs from ', list.list.key, err);
 									if(docs) {
 										// send data to listeners
 										live.emit('doc:' + socket.id, {
