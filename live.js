@@ -205,6 +205,8 @@ Live.prototype.apiRoutes = function(list, options) {
 			
 		});
 		
+		apiRoutes.find = apiRoutes.list;
+		
 		/* attach methods to the list */
 		var api = list.schema.methods.api = apiRoutes;
 
@@ -246,7 +248,7 @@ Live.prototype.apiRoutes = function(list, options) {
 			addRoute('get', route +'/' + PATH + '/' + listPath, api.list, middle, routeOptions.middleware.list);
 		}
 		if(api.find) {
-			addRoute('get', route +'/' + PATH + '/' + listPath, api.list, middle, routeOptions.middleware.list);
+			addRoute('get', route +'/' + PATH + '/find', api.list, middle, routeOptions.middleware.list);
 		}
 		if(api.create) {
 			addRoute('all', route +'/' + PATH + '/' + createPath, api.create, middle, routeOptions.middleware.create);
