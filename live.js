@@ -441,7 +441,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 	if(!_.isArray(opts.postware)) opts.postware = [];
 	
 	// set inclusion / exclusion
-	var globalExcludeRoutes = opts.listConfig.exclude ? opts.listConfig.exclude.split(/[\s,]+/) : [];
+	var globalExcludeRoutes = opts.listConfig.skip ? opts.listConfig.skip.split(/[\s,]+/) : [];
 	var globalOnlyRoutes = opts.listConfig.only ? opts.listConfig.only.split(/[\s,]+/) : false;
 	var globalMiddleware = opts.middleware;
 	var globalPostware = opts.postware;
@@ -818,7 +818,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 						var listConfig = opts.lists[request.list];
 						
 						if(_.isObject(listConfig)) {
-							var excludes = listConfig.exclude ? listConfig.exclude.split(/[\s,]+/) : [];
+							var excludes = listConfig.skip ? listConfig.skip.split(/[\s,]+/) : [];
 							if(excludes.indexOf('list') > -1) {
 								return live.emit('doc:' + socket.id, {
 									path: list.list.path,
