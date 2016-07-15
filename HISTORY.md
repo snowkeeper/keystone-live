@@ -1,11 +1,45 @@
 # Keystone-Live Changelog
 
-## v0.3.2 / 2016-07-08
+## v0.3.2 / 2016-07-15
 
 * updated; stock api routes now respect select. `select: '_id, name',`  
 * fixed; send result to `iden` on error.  Previously only on success   
 * updated; apiRoutes now includes a **find** route that is an alias to **list**  
 * improved; Error message handling.  
+* fixed: Removed socket emitters on `doc:Pre` and `doc:Post` events.   
+* added; socket routes now support postware for list results.  Postware can be defined globally, per route or per List route.      
+
+```
+let options = {
+	lists: {
+		'Posts': {
+			find: {
+				postware: [
+					function(listPath, docs, socket, next) {
+						debug('## POSTWARE ## image check');
+						var manip = _.cloneDeep(docs[listPath]);
+						docs[listPath].forEach(function(v, k) {
+							manip[k] = v.toObject();
+							if(v.images) {
+								v.images.forEach(function(vv, kk) {
+									
+									manip[k].images[kk].thumbnail = vv.thumbnail(250, 150);
+									manip[k].images[kk].original = vv.fit(1920, 1280);
+									debug('thumb', manip[k].images[kk].thumb);
+								});
+							}
+						});
+						debug('## done images find', manip[0].images);
+						var send = {};
+						send[listPath] = manip;
+						next(null, listPath, send, socket);
+					}
+				]
+			}
+		},
+	}  
+}  
+```  
 * updated; Improved. `list` & `find` routes now accept an array of objects to be applied in order. `model.find.apply(model, find)`    
 
 ```

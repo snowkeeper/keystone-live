@@ -1,6 +1,6 @@
 {
   "name": "keystone-live",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "KesytoneJS List emit events, api routes, and socket routes",
   "main": "live.js",
   "scripts": {},
@@ -9,7 +9,6 @@
     "url": "https://github.com/snowkeeper/keystone-live"
   },
   "dependencies": {
-    "async": "^0.9.0",
     "debug": "^2.2.0",
     "express-socket.io-session": "^1.2.1",
     "lodash": "^3.0.0",

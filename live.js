@@ -437,11 +437,14 @@ Live.prototype.apiSockets = function(opts, callback) {
 	if(!_.isObject(opts.lists)) opts.lists = {};
 	if(_.isFunction(opts.middleware)) opts.middleware = [opts.middleware];
 	if(!_.isArray(opts.middleware)) opts.middleware = [];
+	if(_.isFunction(opts.postware)) opts.postware = [opts.postware];
+	if(!_.isArray(opts.postware)) opts.postware = [];
 	
 	// set inclusion / exclusion
 	var globalExcludeRoutes = opts.listConfig.exclude ? opts.listConfig.exclude.split(/[\s,]+/) : [];
 	var globalOnlyRoutes = opts.listConfig.only ? opts.listConfig.only.split(/[\s,]+/) : false;
 	var globalMiddleware = opts.middleware;
+	var globalPostware = opts.postware;
 	
 	sock.serveClient(false);
 	
@@ -527,9 +530,9 @@ Live.prototype.apiSockets = function(opts, callback) {
 		} else {
 			globalAuthFunction(socket, next);
 		}
-	});
+	});		
 	
-	/* list events */
+	/** socket connections **/
 	listNamespace.on("connection", function(socket) {
 			
 			// mock the express req object with user.
@@ -543,8 +546,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 				// remove the events
 				live.removeListener('doc:' + socket.id, docEventFunction);
 				live.removeListener('list:' + socket.id, listEventFunction);
-				live.removeListener('doc:Post', docPostEventFunction);
-				live.removeListener('doc:Pre', docPreEventFunction);
+				live.removeListener('doc:Post:' + socket.id, docPostEventFunction);
+				live.removeListener('doc:Pre:' + socket.id, docPreEventFunction);
 			});
 			socket.on("join", function(room) {
 				socket.join(room.room);
@@ -554,15 +557,30 @@ Live.prototype.apiSockets = function(opts, callback) {
 			}); 
 			
 			/* add live doc events */
+			live.removeListener('doc:' + socket.id, docEventFunction);
 			live.on('doc:' + socket.id, docEventFunction);
-			/* add live doc pre events */
-			live.on('doc:Pre', docPreEventFunction);
-			/* add live doc post events */
-			live.on('doc:Post', docPostEventFunction);
 			/* add live list event */
+			live.removeListener('list:' + socket.id, listEventFunction);
 			live.on('list:' + socket.id, listEventFunction);
+			/* add live doc pre events */
+			//live.on('doc:Pre', docPreEventFunction);
+			/* add live doc post events */
+			//live.on('doc:Post', docPostEventFunction);
 			
 			// event functions
+			function docPreEventFunction(event, socket) {
+				// send update info to global log 
+				live.emit('log:doc', event);			
+				/* send the users change events */
+				socket.emit('doc:pre', event);
+				socket.emit('doc:pre:' + event.type, event);
+			}
+			function docPostEventFunction(event, socket) {
+				live.emit('log:doc', event);
+				/* send the users change events */
+				socket.emit('doc:post', event);
+				socket.emit('doc:post:' + event.type, event);
+			}
 			function listEventFunction(event) { 
 				var send = {
 					
@@ -580,19 +598,6 @@ Live.prototype.apiSockets = function(opts, callback) {
 					//listNamespace.to(socket.id)socket.emit(event.req.iden , send);	
 				}
 				socket.emit('list', send);
-			}
-			function docPreEventFunction(event) {
-				// send update info to global log 
-				live.emit('log:doc', event);			
-				/* send the users change events */
-				socket.emit('doc:pre', event);
-				socket.emit('doc:pre:' + event.type, event);
-			}
-			function docPostEventFunction(event) {
-				live.emit('log:doc', event);
-				/* send the users change events */
-				socket.emit('doc:post', event);
-				socket.emit('doc:post:' + event.type, event);
 			}
 			function docEventFunction(event) { 
 				live.emit('log:doc', event);
@@ -664,17 +669,17 @@ Live.prototype.apiSockets = function(opts, callback) {
 					},function(err) {
 						// send all lists
 						debug.sockets('got data... send to client');
-						live.emit('list:' + socket.id, {req: req, res: { data: p } });
+						live.emit('list:' + socket.id, { req: req, res: { data: p } });
 					});
 					
 				} else if(_.isObject(keystone.lists[list.list])) {
 					// send the requested list
 					getList(keystone.lists[list.list], list || {}, function(obj){
-						live.emit('list:' + socket.id, {req: req, res: obj});	
+						live.emit('list:' + socket.id, { req: req, res: obj });	
 					});
 				} else {
 					// send error
-					live.emit('list:' + socket.id,{req: req, res: {success:false}});
+					live.emit('list:' + socket.id,{ req: req, res: { success: false } });
 				}
 				
 				/* retrieve the results */
@@ -684,11 +689,19 @@ Live.prototype.apiSockets = function(opts, callback) {
 					debug.sockets('run list', getList.key);
 					
 					if(globalOnlyRoutes && globalOnlyRoutes.indexOf(getList.key) < 0) {
-						return cb({path:getList.path, success:false, error:'Not Allowed'});
+						return cb({
+							path: getList.path, 
+							success: false, 
+							error: 'Not Allowed'
+						});
 					}
 					
 					if(globalExcludeRoutes && globalExcludeRoutes.indexOf(getList.key) > -1) {
-						return cb({path:getList.path, success:false, error:'Not Allowed'});
+						return cb({
+							path: getList.path, 
+							success: false, 
+							error: 'Not Allowed'
+						});
 					}
 					
 					var listConfig = opts.lists[getList.key];
@@ -696,7 +709,11 @@ Live.prototype.apiSockets = function(opts, callback) {
 					if(_.isObject(listConfig)) {
 						var excludes = listConfig.exclude ? listConfig.exclude.split(/[\s,]+/) : [];
 						if(excludes.indexOf('list') > -1) {
-							return cb({path:getList.path, success:false, error:'Not Allowed'});
+							return cb({
+								path: getList.path, 
+								success: false, 
+								error: 'Not Allowed'
+							});
 						}
 					}
 					
@@ -711,16 +728,30 @@ Live.prototype.apiSockets = function(opts, callback) {
 					runAction(me, list, socket, function(err) {
 						debug.sockets('runAction callback for ' + list.list.key, 'Error: ' + err);
 						if(err) {
-							cb({path:getList.path, success:false, error:err});
+							cb({
+								path: getList.path, 
+								success: false, 
+								error: err
+							});
 						} else {
 							me.route(list, req, socket, function(err, docs) {
 								debug.sockets('got docs from list',list.list.key, err);
 								if(docs) {
-									// send data to listeners
-									cb({path:getList.path, data:docs, success:true});
+									runPostware(list.list.path, docs, socket, me.postware, function(err, a, manipulatedDocs, b) {
+										// send data to listeners
+										cb({
+											path: getList.path, 
+											data: manipulatedDocs || docs, 
+											success: true
+										});
+									});
 								} else {
 									// fail
-									cb({path:getList.path, success:false, error:err.message});
+									cb({
+										path: getList.path, 
+										success: false, 
+										error: err.message
+									});
 								}
 							});
 						}
@@ -799,7 +830,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 							}
 						}
 						
-						var me = configMe(opts, request.list, alias);
+						var me = configMe(opts, request.list, route, alias);
 						
 						debug.sockets('runAction for me', me);
 																				
@@ -815,16 +846,18 @@ Live.prototype.apiSockets = function(opts, callback) {
 								});
 							} else {
 								me.route(list, req, socket, function(err, docs) {
-									debug.sockets('got docs from ', list.list.key, err);
+									debug.sockets('got docs from ', list.list.key, 'error:', err);
 									if(docs) {
-										// send data to listeners
-										live.emit('doc:' + socket.id, {
-											path: list.list.path, 
-											route: route,
-											data: docs, 
-											success: true,
-											req: request
-										});
+										runPostware(list.list.path, docs, socket, me.postware, function(err, a, manipulatedDocs, b) {
+											// send data to listeners
+											live.emit('doc:' + socket.id, {
+												path: list.list.path, 
+												route: route,
+												data: manipulatedDocs || docs, 
+												success: true,
+												req: request
+											});
+										})
 									} else {
 										// fail
 										live.emit('doc:' + socket.id, {
@@ -884,19 +917,29 @@ Live.prototype.apiSockets = function(opts, callback) {
 			callback();
 		}
 	}
+	function runPostware(list, docs, socket, postware, callback) {
+		debug.sockets('runAction check for postware');
+		if(_.isArray(postware) && postware.length > 0) {
+			debug.sockets('runAction RUN POSTWARE');
+			var seq = async.seq.apply(this, postware);
+			seq(list, docs, socket, callback)
+		} else {
+			callback();
+		}
+	}
 	/** END REQUEST ROUTINE **/
 	
 	/*
-	 * return an object with the correct route and middleware
+	 * return an object with the correct route and middleware and postware
 	 * */
-	function configMe(options, list, path) {
+	function configMe(options, list, path, alias) {
 		// check in order, first wins
 		// options[list[path]]
 		// options[path]
 		// restSock[path]
 		
 		var listConfig = options.lists[list] || {};
-		debug.sockets('consfigMe listConfig?', listConfig, options.routes[path]);
+		debug.sockets('consfigMe listConfig?', path, listConfig, options.routes[path]);
 		debug.sockets('consfigMe route config?', options.routes[path]);
 		
 		if(_.isArray(listConfig.middleware)) {
@@ -905,6 +948,14 @@ Live.prototype.apiSockets = function(opts, callback) {
 			var listMiddleware = _.union(globalMiddleware, [listConfig.middleware]);
 		} else {
 			var listMiddleware = _.clone(globalMiddleware);
+		}
+		
+		if(_.isArray(listConfig.postware)) {
+			var listPostware = _.union(globalPostware, listConfig.postware);
+		} else if(listConfig.postware) {
+			var listPostware = _.union(globalPostware, [listConfig.postware]);
+		} else {
+			var listPostware = _.clone(globalPostware);
 		}
 		
 		if(_.isFunction(listConfig.auth)) {
@@ -922,26 +973,38 @@ Live.prototype.apiSockets = function(opts, callback) {
 		return me;
 		
 		function convertToObject(checkme, opts) {
-						
+			debug.sockets('## convertToObject ## checkme', checkme);		
 			if(_.isFunction(checkme)) {
 				// we have a function route so wrap with defaults
 				return {
 					route: checkme,
 					auth: listAuth,
-					middleware: listMiddleware
+					middleware: listMiddleware,
+					postware: listPostware
 				}
 			} else if(_.isObject(checkme)) {
 				var me = Object.assign({
 					auth: listAuth,
-					route: restSock[path]
+					route: restSock[alias]
 				}, checkme);
 				// append middleware to global
 				if(checkme.middleware && _.isArray(listMiddleware)) {
+					debug.sockets('## Append  ' + path + '  middleware to global');
 					if(_.isFunction(checkme.middleware)) {
 						checkme.middleware = [checkme.middleware];
 					}
 					me.middleware = _.union(listMiddleware, checkme.middleware);
 				}
+				
+				// check for route postware
+				if(checkme.postware && _.isArray(listPostware)) {
+					debug.sockets('## Append ' + path + ' postware to global', listPostware, checkme.postware);
+					if(_.isFunction(checkme.postware)) {
+						checkme.postware = [checkme.postware];
+					}
+					me.postware = _.union(listPostware, checkme.postware);
+				}
+				
 				/* double check auth
 				 * A list can add auth for all routes or per route
 				 * We are meant a true true here, but we just check for existence
@@ -953,7 +1016,7 @@ Live.prototype.apiSockets = function(opts, callback) {
 				 * just make sure for the hell of it
 				 * */
 				if(!_.isFunction(me.route)) {
-					me.route = restSock[path];
+					me.route = restSock[alias];
 				}
 				return me
 			} else {
@@ -961,7 +1024,8 @@ Live.prototype.apiSockets = function(opts, callback) {
 				return {
 					auth: listAuth,
 					middleware: listMiddleware,
-					route: restSock[path]
+					route: restSock[alias],
+					postware: listPostware
 				}
 			}
 		}
