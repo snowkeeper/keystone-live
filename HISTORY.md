@@ -1,5 +1,9 @@
 # Keystone-Live Changelog
 
+## v0.3.4 / 2016-07-15
+
+* fixed; socket middleware was ignored in some cases    
+
 ## v0.3.2 / 2016-07-15
 
 * updated; stock api routes now respect select. `select: '_id, name',`  
