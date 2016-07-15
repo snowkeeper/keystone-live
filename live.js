@@ -985,7 +985,9 @@ Live.prototype.apiSockets = function(opts, callback) {
 			} else if(_.isObject(checkme)) {
 				var me = Object.assign({
 					auth: listAuth,
-					route: restSock[alias]
+					route: restSock[alias],
+					middleware: listMiddleware,
+					postware: listPostware
 				}, checkme);
 				// append middleware to global
 				if(checkme.middleware && _.isArray(listMiddleware)) {
