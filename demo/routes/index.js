@@ -43,6 +43,7 @@ exports = module.exports = function(app) {
 	// app.get('/protected', middleware.requireUser, routes.views.protected);
 	
 	var opts = {
+		route: 'ipa',
 		routes: {
 			get1: function(list) {
 				return function(req, res) {

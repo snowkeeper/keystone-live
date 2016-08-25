@@ -1,5 +1,9 @@
 # Keystone-Live Changelog
 
+## v0.3.5 / 2016-08-25
+
+* improved; refactored lib
+
 ## v0.3.4 / 2016-07-15
 
 * fixed; socket middleware was ignored in some cases    
