@@ -1,5 +1,9 @@
 # Keystone-Live Changelog
 
+## v0.3.6 / 2016-08-27
+
+* fixed; refactored errors
+
 ## v0.3.5 / 2016-08-25
 
 * improved; refactored lib

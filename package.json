@@ -1,6 +1,6 @@
 {
   "name": "keystone-live",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "KesytoneJS List emit events, api routes, and socket routes",
   "main": "live.js",
   "scripts": {},
