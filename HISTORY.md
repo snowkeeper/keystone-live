@@ -1,5 +1,9 @@
 # Keystone-Live Changelog
 
+## v0.3.7 / 2016-09-03
+
+* fixed; default auth for sockets error
+
 ## v0.3.6 / 2016-08-27
 
 * fixed; refactored errors
