@@ -1,5 +1,10 @@
 # Keystone-Live Changelog
 
+# v3.7.1 / 2016-09-03
+
+* fixed; context lost in auth
+* changed; moved the version number up a decimal since i make too may edits.
+
 ## v0.3.7 / 2016-09-03
 
 * fixed; default auth for sockets error
