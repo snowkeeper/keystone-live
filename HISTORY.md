@@ -1,5 +1,9 @@
 # Keystone-Live Changelog
 
+## v3.7.2 / 2016-09-04
+
+* fixed; routes not correctly applied in some instances and were repalce with `list`.
+
 # v3.7.1 / 2016-09-03
 
 * fixed; context lost in auth

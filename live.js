@@ -3,15 +3,13 @@
  */
 
 var _ = require('lodash');
-var keystone = false;
 var	async = require('async');
-var	utils;
 var events = require('events');
 var util = require('util');
 var DEBUG = require('debug');
 
 var debug = {
-	debug: DEBUG('keystone-live'),
+	debug: DEBUG('keystone-live:main'),
 	list: DEBUG('keystone-live:list'),
 	get: DEBUG('keystone-live:get'),
 	create: DEBUG('keystone-live:create'),
@@ -58,15 +56,11 @@ var live = module.exports = exports = new Live();
  * 
  * */
 Live.prototype.init = function(Keystone) {
-	
-	if(Keystone) keystone = Keystone;
-	
-	this.keystone = keystone;
+		
+	this.keystone = Keystone;
 	
 	this.checkForKeystone();
-	
-	utils = keystone.utils;
-	
+		
 	debug.debug('keystone-live init');
 	
 	return this;

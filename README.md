@@ -274,7 +274,7 @@ Returns `this` if no **`callback`** provided.
 > __middleware__   -   {_...Array|Function_}   - global middleware function stack `function(socket, data, next)`    
 > __listConfig__ - {_Object_} - configuration for lists  
 >> __only__   -   {_String_}  -  comma seperated string of Lists allowed (takes first precedence)  
->> __exclude__   -   {_String_}   -  comma seperated string of Lists not to allow   
+>> __skip__   -   {_String_}   -  comma seperated string of Lists not to allow   
 
 > __lists__ - {_Object_} - individual List config   
 >> __KEY__  -  {_Object_}  -  Each Key should be a valid List with an object consisting of:  
